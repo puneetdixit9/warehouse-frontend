@@ -59,6 +59,11 @@ async function checkAuthfailAndRetry(response, func, body={}){
     return [response.status,  data]
 }
 
+async function refreshAndRetry(func, body, remainingPath){
+    refresh()
+    return func({ body, remainingPath })
+}
+
 async function change_password(old_password, new_password){
     let user = localStorage.getItem("user")
     user = JSON.parse(user)
@@ -123,7 +128,8 @@ const AuthService = {
     logout,
     checkAuthfailAndRetry,
     logoutRefreshToken,
-    logoutAccessToken
+    logoutAccessToken,
+    refreshAndRetry
 }
 
 export default AuthService;

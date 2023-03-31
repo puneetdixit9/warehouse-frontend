@@ -3,8 +3,11 @@ import { useNavigate } from "react-router-dom";
 import "../styles/ResultPage.css";
 import Chart from "chart.js/auto";
 import { utils, writeFile } from "xlsx";
+import WarehouseService from '../services/warehouse.service';
 
 const Result = () => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    const requirementData = localStorage.getItem("requirementData");
     const navigate = useNavigate();
     const [data, setData] = useState({});
     const [demandVsFulfillmentData, setDemandVsFulfillmentData] = useState([]);
@@ -31,25 +34,18 @@ const Result = () => {
     });
 
     useEffect(() => {
-        let user = localStorage.getItem("user");
-        user = JSON.parse(user);
         if (!user) {
             navigate("/login");
         }
-        let requirementData = localStorage.getItem("requirementData");
-        fetch(`http://127.0.0.1:5000/calculate`, {
-            method: "POST",
-            body: requirementData,
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: "Bearer " + user.access_token,
-            },
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                setData(data["output"]);
-                setDemandVsFulfillmentData(data["demand_vs_fulfillment_data"]);
-                setAdditionalData(data["additional_data"]);
+        if (!requirementData) {
+            navigate("/manpower-planner/requiremnts");
+        }
+
+        WarehouseService.catculateManpower({body: requirementData}).then((response) => {
+            if (response.status === 200) {
+                setData(response.data.output);
+                setDemandVsFulfillmentData(response.data.demand_vs_fulfillment_data);
+                setAdditionalData(response.data.additional_data);
                 setIsDataReady(true);
                 // setChartData({
                 //     labels: demandVsFulfillmentData.map((item) => item.date),
@@ -72,8 +68,10 @@ const Result = () => {
                 //         },
                 //     ],
                 // });
-            })
-            .catch((error) => console.error(error));
+            } else {
+                console.error("Error in calculating manpower")
+            }
+        }).catch((error) => console.error(error));
     }, []);
 
     useEffect(() => {

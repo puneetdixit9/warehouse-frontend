@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import WarehouseService from '../services/warehouse.service'
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -27,26 +28,14 @@ const SelectWarehouse = () => {
         if (!user) {
             navigate("/login");
         }
-        const fetchWarehouses = async () => {
-            try {
-                const response = await fetch(
-                    "http://127.0.0.1:5000/warehouses",
-                    {
-                        method: "GET",
-                        headers: {
-                            "content-type": "application/json",
-                            Authorization: "Bearer " + user.access_token,
-                        },
-                    }
-                );
-                const data = await response.json();
-                setWarehouses(data);
-            } catch (error) {
-                console.error(error);
+        WarehouseService.getWarehouses().then((response) => {
+            if (response.status === 200) {
+                setWarehouses(response.data)
+            } else {
+                console.error("Error in fetching warehouse")
             }
-        };
+        }).catch((error) => console.error(error));
 
-        fetchWarehouses();
     }, []);
 
     const handleWarehouseChange = (e) => {

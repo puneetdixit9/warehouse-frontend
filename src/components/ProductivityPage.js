@@ -1,18 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
+import WarehouseService from '../services/warehouse.service';
 import { Modal, Button } from "react-bootstrap";
 
 function Productivity() {
     const [data, setData] = useState([]);
     const fileInputRef = useRef(null);
-    const [editingIndex, setEditingIndex] = useState(-1);
     const [fileSelected, setFileSelected] = useState(false);
-    const [
-        productivityExperiencedEmployee,
-        setProductivityExperiencedEmployee,
-    ] = useState(0);
-    const [productivityNewEmployee, setProductivityNewEmployee] = useState(0);
     const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem("user"));
     const warehouse = JSON.parse(localStorage.getItem("warehouse"));
@@ -36,20 +31,14 @@ function Productivity() {
     };
 
     const getProductivityData = () => {
-        fetch(
-            "http://127.0.0.1:5000/benchmark_productivity/" + warehouse["id"],
-            {
-                method: "GET",
-                headers: {
-                    "content-type": "application/json",
-                    Authorization: "Bearer " + user.access_token,
-                },
+        WarehouseService.getProductivityData({remainingPath: warehouse["id"]}).then((response) => {
+            if (response.status === 200) {
+                setData(response.data)
+            } else {
+                console.error("Error in fetching warehouse")
             }
-        )
-            .then((response) => response.json())
-            .then((responseData) => setData(responseData));
-    };
-
+        }).catch((error) => console.error(error));
+    }
     const handleProductivityChange = (id, fieldName, value) => {
         const newData = [...data];
         value = parseInt(value);
@@ -69,28 +58,14 @@ function Productivity() {
         }
     };
 
-    const handleEditClick = (index) => {
-        setEditingIndex(index);
-        setProductivityExperiencedEmployee(
-            data[index].productivity_experienced_employee
-        );
-        setProductivityNewEmployee(data[index].productivity_new_employee);
-    };
-
     const handleSaveClick = () => {
-        fetch(`http://127.0.0.1:5000/benchmark_productivity`, {
-            method: "PUT",
-            body: JSON.stringify({
-                productivity: updatedProductivity,
-            }),
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: "Bearer " + user.access_token,
-            },
-        })
-            .then((response) => response.json())
-            .catch((error) => console.error(error));
-        setUpdatedProductivity([]);
+        WarehouseService.updateProductivityData({body: JSON.stringify({productivity: updatedProductivity})}).then((response) => {
+            if (response.status === 200) {
+                setUpdatedProductivity([]);
+            } else {
+                console.error("Error in fetching warehouse")
+            }
+        }).catch((error) => console.error(error));
     };
 
     const handleFileSelected = () => {
@@ -111,42 +86,22 @@ function Productivity() {
         const formData = new FormData();
         formData.append("file", file);
         setFileUploading(true);
-        fetch(
-            "http://127.0.0.1:5000/upload_productivity_file/" + warehouse["id"],
-            {
-                method: "POST",
-                body: formData,
-                headers: {
-                    Authorization: "Bearer " + user.access_token,
-                },
+        WarehouseService.uploadProductivityFile({ remainingPath: warehouse["id"], body: formData}).then((response) => {
+            if (response.status === 201) {
+                alert("File uploaded successfully");
+                getProductivityData();
+            } else {
+                alert("Error in File : " + response.data.error);
             }
-        )
-            .then((response) => {
-                return response.json().then((json) => {
-                    return {
-                        status: response.status,
-                        data: json,
-                    };
-                });
-            })
-            .then(({ status, data }) => {
-                if (status === 201) {
-                    alert("File uploaded successfully");
-                    getProductivityData();
-                } else {
-                    alert("Error in File : " + data.error);
-                }
-                setFileUploading(false);
-                setFileSelected(false);
-                fileInputRef.current.value = "";
-            })
-
-            .catch((error) => {
-                console.error("Error uploading file:", error);
-                setFileUploading(false);
-                setFileSelected(false);
-                fileInputRef.current.value = "";
-            });
+            setFileUploading(false);
+            setFileSelected(false);
+            fileInputRef.current.value = "";
+        }).catch((error) => {
+            console.error("Error uploading file:", error);
+            setFileUploading(false);
+            setFileSelected(false);
+            fileInputRef.current.value = "";
+        });
     };
 
     const handleClose = () => setShowDialog(false);

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Modal, Button } from "react-bootstrap";
+import WarehouseService from '../services/warehouse.service';
 
 function ExpectedDemand() {
     const [updatedDemands, setUpdatedDemands] = useState([]);
@@ -27,42 +28,25 @@ function ExpectedDemand() {
     }, []);
 
     const getDemandsData = () => {
-        fetch(
-            "http://127.0.0.1:5000/demands/" +
-                warehouse["id"] +
-                "?start_date=" +
-                warehouse["startDate"] +
-                "&end_date=" +
-                warehouse["endDate"],
-            {
-                method: "GET",
-                headers: {
-                    "content-type": "application/json",
-                    Authorization: "Bearer " + user.access_token,
-                },
-            }
-        )
-            .then((response) => response.json())
-            .then((data) => {
+        WarehouseService.getExpectedDemandsData({remainingPath: warehouse["id"] + "?start_date=" + warehouse["startDate"] + "&end_date=" + warehouse["endDate"]}).then((response) => {
+            if (response.status === 200) {
                 setEditableData([{}]);
-                setEditableData(data);
-            });
+                setEditableData(response.data);
+            } else {
+                console.error("Error in fetching demands")
+            }
+        }).catch((error) => console.error(error));
     };
 
     const handleSaveClick = () => {
-        fetch(`http://127.0.0.1:5000/demands`, {
-            method: "PUT",
-            body: JSON.stringify({
-                demands: updatedDemands,
-            }),
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: "Bearer " + user.access_token,
-            },
-        })
-            .then((response) => response.json())
-            .catch((error) => console.error(error));
-        setUpdatedDemands([]);
+        WarehouseService.updateExpectedDemandsData({body: JSON.stringify({demands: updatedDemands})}).then((response) => {
+            if (response.status === 200) {
+                setUpdatedDemands([]);
+            } else {
+                console.error("Error in updating demands forecasting")
+            }
+        }).catch((error) => console.error(error));
+        
     };
 
     const categories = Object.keys(
@@ -127,38 +111,22 @@ function ExpectedDemand() {
         formData.append("start_date", warehouse["startDate"]);
         formData.append("end_date", warehouse["endDate"]);
         setFileUploading(true);
-        fetch("http://127.0.0.1:5000/demand_forecast_file/" + warehouse["id"], {
-            method: "POST",
-            body: formData,
-            headers: {
-                Authorization: "Bearer " + user.access_token,
-            },
-        })
-            .then((response) => {
-                return response.json().then((json) => {
-                    return {
-                        status: response.status,
-                        data: json,
-                    };
-                });
-            })
-            .then(({ status, data }) => {
-                if (status === 201) {
-                    alert("File uploaded successfully");
-                    getDemandsData();
-                } else {
-                    alert("Error in File : " + data.error);
-                }
-                setFileUploading(false);
-                setFileSelected(false);
-                fileInputRef.current.value = "";
-            })
-            .catch((error) => {
-                console.error("Error uploading file:", error);
-                setFileUploading(false);
-                setFileSelected(false);
-                fileInputRef.current.value = "";
-            });
+        WarehouseService.uploadExpectedDemandsFile({ remainingPath: warehouse["id"], body: formData}).then((response) => {
+            if (response.status === 201) {
+                alert("File uploaded successfully");
+                getDemandsData();
+            } else {
+                alert("Error in File : " + response.data.error);
+            }
+            setFileUploading(false);
+            setFileSelected(false);
+            fileInputRef.current.value = "";
+        }).catch((error) => {
+            console.error("Error uploading file:", error);
+            setFileUploading(false);
+            setFileSelected(false);
+            fileInputRef.current.value = "";
+        });
     };
 
     const header = (
