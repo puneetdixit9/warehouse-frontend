@@ -3,8 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const Requirement = () => {
-    let requirements = JSON.parse(localStorage.getItem('requirementData'))
-    
+    let requirements = JSON.parse(localStorage.getItem("requirementData"));
+
     const [num_current_employees, setCurrentEmployee] = useState("");
     const [day_working_hours, setWorkingHours] = useState("");
     const [cost_per_employee_per_month, setCostPerEmployee] = useState("");
@@ -14,11 +14,11 @@ const Requirement = () => {
 
     useEffect(() => {
         if (requirements) {
-            setCurrentEmployee(requirements["num_current_employees"])
-            setAbsentExpected(requirements["percentage_absent_expected"])
-            setCostPerEmployee(requirements["cost_per_employee_per_month"])
-            setTotalHiringBudget(requirements["total_hiring_budget"])
-            setWorkingHours(requirements["day_working_hours"])
+            setCurrentEmployee(requirements["num_current_employees"]);
+            setAbsentExpected(requirements["percentage_absent_expected"]);
+            setCostPerEmployee(requirements["cost_per_employee_per_month"]);
+            setTotalHiringBudget(requirements["total_hiring_budget"]);
+            setWorkingHours(requirements["day_working_hours"]);
         }
     }, []);
 
@@ -54,6 +54,14 @@ const Requirement = () => {
 
         if (!isproceed) {
             toast.warning(errormessage);
+        } else if (
+            parseInt(total_hiring_budget) <
+            parseInt(cost_per_employee_per_month)
+        ) {
+            isproceed = false;
+            toast.warning(
+                "Total Hiring Budget is smaller then Cost Per Employee"
+            );
         }
         return isproceed;
     };
@@ -76,24 +84,27 @@ const Requirement = () => {
                 plan_from_date,
                 plan_to_date,
             };
-            localStorage.setItem("requirementData", JSON.stringify(requirementData))
-            navigate("/manpower-planner/result")
+            localStorage.setItem(
+                "requirementData",
+                JSON.stringify(requirementData)
+            );
+            navigate("/manpower-planner/result");
         }
     };
     const handleCancelClick = () => {
-        localStorage.removeItem("warehouse")
-        localStorage.removeItem("requirementData")
-        navigate('/dashboard')
-      };
+        localStorage.removeItem("warehouse");
+        localStorage.removeItem("requirementData");
+        navigate("/dashboard");
+    };
 
     const handleReset = (e) => {
         e.preventDefault();
-        setCurrentEmployee("")
-        setAbsentExpected("")
-        setCostPerEmployee("")
-        setTotalHiringBudget("")
-        setWorkingHours("")
-    }
+        setCurrentEmployee("");
+        setAbsentExpected("");
+        setCostPerEmployee("");
+        setTotalHiringBudget("");
+        setWorkingHours("");
+    };
     return (
         <div className="row">
             <div
@@ -183,16 +194,39 @@ const Requirement = () => {
                             </div>
                         </div>
                         <div className="card-footer">
-                        <Link className="btn btn-primary btn-lg mx-1" to={"/manpower-planner/expected-demands"} >Prev</Link>
-                        <button type="submit" className="btn btn-primary btn-lg mx-1" style={{
-                                  backgroundColor: "green",
-                              }}>Calculate</button>
-                        <button className="btn btn-primary btn-lg mx-1" onClick={handleReset} style={{
-                                  backgroundColor: "lightgreen",
-                              }}>Reset</button>
-                        <button className="btn btn-primary btn-lg position-absolute bottom-0 end-0 m-2" onClick={handleCancelClick} style={{
-                                  backgroundColor: "red",
-                              }}>Cancel</button>
+                            <Link
+                                className="btn btn-primary btn-lg mx-1"
+                                to={"/manpower-planner/expected-demands"}
+                            >
+                                Prev
+                            </Link>
+                            <button
+                                type="submit"
+                                className="btn btn-primary btn-lg mx-1"
+                                style={{
+                                    backgroundColor: "green",
+                                }}
+                            >
+                                Calculate
+                            </button>
+                            <button
+                                className="btn btn-primary btn-lg mx-1"
+                                onClick={handleReset}
+                                style={{
+                                    backgroundColor: "lightgreen",
+                                }}
+                            >
+                                Reset
+                            </button>
+                            <button
+                                className="btn btn-primary btn-lg position-absolute bottom-0 end-0 m-2"
+                                onClick={handleCancelClick}
+                                style={{
+                                    backgroundColor: "red",
+                                }}
+                            >
+                                Cancel
+                            </button>
                         </div>
                     </div>
                 </form>

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -56,10 +55,10 @@ const SelectWarehouse = () => {
 
     const handleNextClick = () => {
         if (!selectedWarehouse) {
-            console.log("warehouse not selected")
+            console.log("warehouse not selected");
         } else if (startDate > endDate) {
             toast.error("End date cannot greater the start date");
-            return
+            return;
         } else {
             const warehouse = {
                 id: selectedWarehouse,
@@ -143,16 +142,16 @@ const SelectWarehouse = () => {
                                 className="btn btn-primary btn-lg"
                                 onClick={handleNextClick}
                                 style={{
-                                  backgroundColor: "green",
-                              }}
+                                    backgroundColor: "green",
+                                }}
                             >
                                 Next
                             </button>
                             <button
                                 className="btn btn-primary btn-lg position-absolute bottom-0 end-0 m-2"
                                 style={{
-                                  backgroundColor: "red",
-                              }}
+                                    backgroundColor: "red",
+                                }}
                                 onClick={handleCancelClick}
                             >
                                 Cancel
@@ -166,4 +165,3 @@ const SelectWarehouse = () => {
 };
 
 export default SelectWarehouse;
-

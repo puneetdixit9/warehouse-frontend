@@ -2,22 +2,33 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/ResultPage.css";
 import Chart from "chart.js/auto";
-import XLSX from 'xlsx';
+import { utils, writeFile } from "xlsx";
 
 const Result = () => {
     const navigate = useNavigate();
     const [data, setData] = useState({});
+    const [demandVsFulfillmentData, setDemandVsFulfillmentData] = useState([]);
+    const [isDataReady, setIsDataReady] = useState(false);
     const [tableType, setTableType] = useState("resultTable");
+    const [additionalData, setAdditionalData] = useState({});
     const chartContainer = useRef(null);
-    const demandVsFulfillmentData = [
-        { date: "01/11/22", demand: 1927, expectedFulfillmentQty: 1171 },
-        { date: "02/11/22", demand: 1673, expectedFulfillmentQty: 1474 },
-        { date: "03/11/22", demand: 1159, expectedFulfillmentQty: 1638 },
-        { date: "04/11/22", demand: 1363, expectedFulfillmentQty: 1730 },
-        { date: "05/11/22", demand: 1932, expectedFulfillmentQty: 1180 },
-        { date: "06/11/22", demand: 1552, expectedFulfillmentQty: 1266 },
-        { date: "07/11/22", demand: 1151, expectedFulfillmentQty: 1941 },
-    ];
+    const [chartData, setChartData] = useState({
+        labels: [],
+        datasets: [
+            {
+                label: "Demand Total",
+                data: [],
+                borderColor: "red",
+                fill: false,
+            },
+            {
+                label: "Expected Fulfillment Qty",
+                data: [],
+                borderColor: "blue",
+                fill: false,
+            },
+        ],
+    });
 
     useEffect(() => {
         let user = localStorage.getItem("user");
@@ -37,37 +48,60 @@ const Result = () => {
             .then((response) => response.json())
             .then((data) => {
                 setData(data["output"]);
+                setDemandVsFulfillmentData(data["demand_vs_fulfillment_data"]);
+                setAdditionalData(data["additional_data"]);
+                setIsDataReady(true);
+                // setChartData({
+                //     labels: demandVsFulfillmentData.map((item) => item.date),
+                //     datasets: [
+                //         {
+                //             label: "Demand Total",
+                //             data: demandVsFulfillmentData.map(
+                //                 (item) => item.demand
+                //             ),
+                //             borderColor: "red",
+                //             fill: false,
+                //         },
+                //         {
+                //             label: "Expected Fulfillment Qty",
+                //             data: demandVsFulfillmentData.map(
+                //                 (item) => item.expectedFulfillmentQty
+                //             ),
+                //             borderColor: "blue",
+                //             fill: false,
+                //         },
+                //     ],
+                // });
             })
             .catch((error) => console.error(error));
+    }, []);
 
-        if (chartContainer && chartContainer.current) {
+    useEffect(() => {
+        if (chartContainer && chartContainer.current && isDataReady) {
             const chartConfig = {
                 type: "line",
                 data: {
-                    labels: [
-                        "01/11/22",
-                        "02/11/22",
-                        "03/11/22",
-                        "04/11/22",
-                        "05/11/22",
-                        "06/11/22",
-                        "07/11/22",
-                    ],
+                    labels: demandVsFulfillmentData.map((item) => item.date),
                     datasets: [
                         {
                             label: "Demand Total",
-                            data: [1227, 1673, 900, 1663, 1332, 1552, 1151],
+                            data: demandVsFulfillmentData.map(
+                                (item) => item.demand
+                            ),
                             borderColor: "red",
                             fill: false,
                         },
                         {
                             label: "Expected Fulfillment Qty",
-                            data: [1171, 1474, 738, 1630, 1180, 1266, 1141],
+                            data: demandVsFulfillmentData.map(
+                                (item) => item.expectedFulfillmentQty
+                            ),
                             borderColor: "blue",
                             fill: false,
                         },
                     ],
                 },
+                // data: chartData,
                 options: {
                     scales: {
                         yAxes: [
@@ -85,7 +119,7 @@ const Result = () => {
                 myChart.destroy();
             };
         }
-    }, []);
+    });
 
     const handleHome = () => {
         localStorage.removeItem("warehouse");
@@ -102,10 +136,12 @@ const Result = () => {
 
     const handleStartDateChange = (e) => {
         setStartDate(e.target.value);
+        updateChartData(demandVsFulfillmentFilteredData);
     };
 
     const handleEndDateChange = (e) => {
         setEndDate(e.target.value);
+        updateChartData(demandVsFulfillmentFilteredData);
     };
 
     const handleCategoryChange = (e) => {
@@ -116,18 +152,16 @@ const Result = () => {
         setTableType(e.target.value);
     };
 
-    // function downloadExcel() {
-    //   // Convert the table data to a worksheet
+    function downloadExcel() {
+        const worksheet = utils.table_to_sheet(
+            document.getElementById(tableType)
+        );
+        worksheet["!cols"] = [{ wch: 10 }, { wch: 9 }, { wch: 21 }];
+        const workbook = utils.book_new();
+        utils.book_append_sheet(workbook, worksheet, "Sheet1");
 
-    //   const worksheet = XLSX.utils.table_to_sheet(document.getElementById('my-table'));
-    
-    //   // Create a workbook and add the worksheet
-    //   const workbook = XLSX.utils.book_new();
-    //   XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-    
-    //   // Save the workbook as an Excel file
-    //   XLSX.writeFile(workbook, 'my-table.xlsx');
-    // }
+        writeFile(workbook, tableType+".xlsx");
+    }
 
     const filteredData = Object.keys(data)
         .filter((date) => {
@@ -152,6 +186,36 @@ const Result = () => {
             });
             return filtered;
         }, {});
+
+    const demandVsFulfillmentFilteredData = demandVsFulfillmentData.filter(
+        (item) => {
+            if (startDate && endDate) {
+                return item.date >= startDate && item.date <= endDate;
+            } else if (startDate) {
+                return item.date >= startDate;
+            } else if (endDate) {
+                return item.date <= endDate;
+            }
+            return true;
+        }
+    );
+
+    const updateChartData = (newData) => {
+        setChartData({
+            ...chartData,
+            labels: newData.map((item) => item.date),
+            datasets: [
+                {
+                    ...chartData.datasets[0],
+                    data: newData.map((item) => item.demand),
+                },
+                {
+                    ...chartData.datasets[1],
+                    data: newData.map((item) => item.expectedFulfillmentQty),
+                },
+            ],
+        });
+    };
 
     const uniqueDates = Object.keys(filteredData).filter(
         (key) => key !== "total" && key !== "additional_data"
@@ -256,7 +320,12 @@ const Result = () => {
                             <div className="additional-info-label">
                                 Project Fulfillment:
                             </div>
-                            <div className="additional-info-value">{5}%</div>
+                            <div className="additional-info-value">
+                                {additionalData.project_fulfillment
+                                    ? additionalData.project_fulfillment
+                                    : 0}
+                                %
+                            </div>
                         </div>
                     </div>
                     <div className="additional-info right">
@@ -264,7 +333,11 @@ const Result = () => {
                             <div className="additional-info-label">
                                 Total Hiring Budget:
                             </div>
-                            <div className="additional-info-value">{5}</div>
+                            <div className="additional-info-value">
+                                {additionalData.total_hiring_budget
+                                    ? additionalData.total_hiring_budget
+                                    : 0}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -275,9 +348,12 @@ const Result = () => {
                 >
                     <canvas ref={chartContainer} />
                 </div>
+
                 <br></br>
                 <div className="" style={{ textAlign: "center" }}>
-                    <label htmlFor="tableType">Select Table: </label>
+                    <label style={{ fontWeight: "bold" }} htmlFor="tableType">
+                        Select Table:{" "}
+                    </label>
                     <select
                         id="tableType"
                         value={tableType}
@@ -286,7 +362,7 @@ const Result = () => {
                         <option value="resultTable">
                             New, existing to be deployed table (Result table)
                         </option>
-                        <option value="fulfillmentTable">
+                        <option value="demandFulfullmentTable">
                             Date-wise demand vs projected fulfillment table{" "}
                         </option>
                     </select>
@@ -294,22 +370,56 @@ const Result = () => {
                 <br></br>
                 <div style={{ height: "300px", overflowX: "auto" }}>
                     {tableType === "resultTable" ? (
-                        <table>
+                        <table
+                            id="resultTable"
+                            style={{ borderCollapse: "collapse" }}
+                        >
                             <thead>
-                                <tr>
-                                    <th style={{ textAlign: "center" }}>
+                                <tr
+                                    style={{
+                                        position: "sticky",
+                                        top: 0,
+                                        zIndex: 1,
+                                    }}
+                                >
+                                    <th
+                                        style={{
+                                            textAlign: "center",
+                                            backgroundColor: "#ddd",
+                                        }}
+                                    >
                                         Date
                                     </th>
-                                    <th style={{ textAlign: "center" }}>
+                                    <th
+                                        style={{
+                                            textAlign: "center",
+                                            backgroundColor: "#ddd",
+                                        }}
+                                    >
                                         Category
                                     </th>
-                                    <th style={{ textAlign: "center" }}>
+                                    <th
+                                        style={{
+                                            textAlign: "center",
+                                            backgroundColor: "#ddd",
+                                        }}
+                                    >
                                         Num of Existing to Deploy
                                     </th>
-                                    <th style={{ textAlign: "center" }}>
+                                    <th
+                                        style={{
+                                            textAlign: "center",
+                                            backgroundColor: "#ddd",
+                                        }}
+                                    >
                                         Num of New to Deploy
                                     </th>
-                                    <th style={{ textAlign: "center" }}>
+                                    <th
+                                        style={{
+                                            textAlign: "center",
+                                            backgroundColor: "#ddd",
+                                        }}
+                                    >
                                         Total
                                     </th>
                                 </tr>
@@ -393,12 +503,20 @@ const Result = () => {
                                         </>
                                     );
                                 })}
-                                <tr>
+                                <tr
+                                    style={{
+                                        position: "sticky",
+                                        bottom: 0,
+                                        zIndex: 1,
+                                        backgroundColor: "#ddd",
+                                    }}
+                                >
                                     <td
                                         colSpan={2}
                                         style={{
                                             fontWeight: "bold",
                                             textAlign: "center",
+                                            backgroundColor: "#ddd",
                                         }}
                                     >
                                         Total
@@ -432,22 +550,46 @@ const Result = () => {
                         </table>
                     ) : (
                         <div>
-                            <table>
+                            <table
+                                id="demandFulfullmentTable"
+                                style={{ borderCollapse: "collapse" }}
+                            >
                                 <thead>
-                                    <tr>
-                                        <th style={{ textAlign: "center" }}>
+                                    <tr
+                                        style={{
+                                            position: "sticky",
+                                            top: 0,
+                                            zIndex: 1,
+                                        }}
+                                    >
+                                        <th
+                                            style={{
+                                                textAlign: "center",
+                                                backgroundColor: "#ddd",
+                                            }}
+                                        >
                                             Date
                                         </th>
-                                        <th style={{ textAlign: "center" }}>
+                                        <th
+                                            style={{
+                                                textAlign: "center",
+                                                backgroundColor: "#ddd",
+                                            }}
+                                        >
                                             Demand
                                         </th>
-                                        <th style={{ textAlign: "center" }}>
+                                        <th
+                                            style={{
+                                                textAlign: "center",
+                                                backgroundColor: "#ddd",
+                                            }}
+                                        >
                                             Expected Fulfillment Qty
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {demandVsFulfillmentData.map(
+                                    {demandVsFulfillmentFilteredData.map(
                                         ({
                                             date,
                                             demand,
@@ -483,6 +625,28 @@ const Result = () => {
                         </div>
                     )}
                 </div>
+                <br></br>
+                <button
+                    className="btn btn-primary btn-lg mx-1"
+                    onClick={handleCalculateAgain}
+                >
+                    Modify Inputs
+                </button>
+                <button
+                    className="btn btn-primary btn-lg mx-1"
+                    style={{
+                        backgroundColor: "green",
+                    }}
+                    onClick={downloadExcel}
+                >
+                    Download Excel
+                </button>
+                <button
+                    className="btn btn-primary btn-lg mx-1"
+                    onClick={handleHome}
+                >
+                    Dashboard
+                </button>
             </div>
         </div>
     );

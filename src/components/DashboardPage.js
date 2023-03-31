@@ -72,7 +72,6 @@ function Dashboard() {
                         <button onClick={() => setShowLogout(false)}>
                             Cancel
                         </button>
-
                         | |<button onClick={confirmLogout}>Logout</button>
                     </div>
                 </div>

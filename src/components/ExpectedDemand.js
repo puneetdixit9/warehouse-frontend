@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { Modal, Button } from "react-bootstrap";
 
 function ExpectedDemand() {
     const [updatedDemands, setUpdatedDemands] = useState([]);
@@ -12,6 +13,7 @@ function ExpectedDemand() {
     const fileInputRef = useRef(null);
     const [fileSelected, setFileSelected] = useState(false);
     const navigate = useNavigate();
+    const [showDialog, setShowDialog] = useState(false);
 
     useEffect(() => {
         if (!warehouse) {
@@ -23,7 +25,6 @@ function ExpectedDemand() {
         }
         getDemandsData();
     }, []);
-
 
     const getDemandsData = () => {
         fetch(
@@ -43,7 +44,7 @@ function ExpectedDemand() {
         )
             .then((response) => response.json())
             .then((data) => {
-                setEditableData([{}])
+                setEditableData([{}]);
                 setEditableData(data);
             });
     };
@@ -64,8 +65,9 @@ function ExpectedDemand() {
         setUpdatedDemands([]);
     };
 
-    const categories = Object.keys(editableData[Object.keys(editableData)[0]])
-        .filter((category) => category !== "total")
+    const categories = Object.keys(
+        editableData[Object.keys(editableData)[0]]
+    ).filter((category) => category !== "total");
 
     const handleDemandChange = (event, date, category) => {
         const newData = { ...editableData };
@@ -92,12 +94,26 @@ function ExpectedDemand() {
         navigate("/dashboard");
     };
 
+    const handleNextButtonClick = () => {
+        if (updatedDemands.length > 0) {
+            setShowDialog(true);
+        } else {
+            navigate("/manpower-planner/requiremnts");
+        }
+    };
+
+    const handleClose = () => setShowDialog(false);
+
+    const handleYesClick = () => {
+        setShowDialog(false);
+        navigate("/manpower-planner/requiremnts");
+    };
+
     const handleBlur = (event, date, category) => {
         const newData = { ...editableData };
         newData[date][category].demand = parseInt(event.target.value);
         setEditableData(newData);
     };
-
 
     const handleFileSelected = () => {
         setFileSelected(true);
@@ -145,79 +161,171 @@ function ExpectedDemand() {
             });
     };
 
-    
     const header = (
         <tr>
-        <th style={{ position: "sticky", left: 0, zIndex: 2, width: "200px", background: "#fff", whiteSpace: "nowrap" }}>Date</th>
-        {categories.map((category) => (
-          <th key={category} style={{ width: "50px", position: "sticky", zIndex: 1, background: "#fff" }}>
-            {category}
-          </th>
-        ))}
-        <th style={{ position: "sticky", right: 0, zIndex: 2, fontWeight: "bold", background: "#fff" }}>Total</th>
-      </tr>
-      );
-      
-      const rows = Object.entries(editableData).map(([date, values]) => {
+            <th
+                style={{
+                    position: "sticky",
+                    left: 0,
+                    zIndex: 2,
+                    width: "200px",
+                    background: "#ddd",
+                    whiteSpace: "nowrap",
+                    top: "0",
+                }}
+            >
+                Date
+            </th>
+            {categories.map((category) => (
+                <th
+                    key={category}
+                    style={{
+                        width: "50px",
+                        position: "sticky",
+                        zIndex: 1,
+                        background: "#ddd",
+                        top: "0",
+                    }}
+                >
+                    {category}
+                </th>
+            ))}
+            <th
+                style={{
+                    position: "sticky",
+                    right: 0,
+                    zIndex: 2,
+                    fontWeight: "bold",
+                    background: "#ddd",
+                    top: "0",
+                }}
+            >
+                Total
+            </th>
+        </tr>
+    );
+
+    const rows = Object.entries(editableData).map(([date, values]) => {
         const rowTotal = values.total;
         let cells;
         if (date === "total") {
-          cells = categories.map((category) => (
-            <td key={category} style={{ fontWeight: "bold", width: "120px" }}>
-              {values[category]}
-            </td>
-          ));
+            cells = categories.map((category) => (
+                <td
+                    key={category}
+                    style={{
+                        fontWeight: "bold",
+                        width: "120px",
+                        position: "sticky",
+                        bottom: "0",
+                        background: "#ddd",
+                    }}
+                >
+                    {values[category]}
+                </td>
+            ));
         } else {
-          cells = categories.map((category) => (
-            <td key={category} style={{ width: "80px" }}>
-              {values[category] ? (
-                <input
-                  type="number"
-                  defaultValue={values[category].demand}
-                  onBlur={(event) => handleBlur(event, date, category)}
-                  onChange={(event) => handleDemandChange(event, date, category)}
-                  style={{ width: "60px" }}
-                />
-              ) : (
-                "-"
-              )}
-            </td>
-          ));
+            cells = categories.map((category) => (
+                <td key={category} style={{ width: "80px" }}>
+                    {values[category] ? (
+                        <input
+                            type="number"
+                            defaultValue={values[category].demand}
+                            onBlur={(event) =>
+                                handleBlur(event, date, category)
+                            }
+                            onChange={(event) =>
+                                handleDemandChange(event, date, category)
+                            }
+                            style={{ width: "60px" }}
+                        />
+                    ) : (
+                        "-"
+                    )}
+                </td>
+            ));
         }
         return (
-          <tr key={date}>
-            <td style={{ position: "sticky", left: 0, fontWeight: "bold", width: "200px", background: "#fff", whiteSpace: "nowrap" }}>{date === "total" ? "TOTAL" : date}</td>
-            {cells}
-            <td className="text-center" style={{ position: "sticky", right: 0, fontWeight: "bold", width: "80px", background: "#fff" }}>{rowTotal}</td>
-          </tr>
+            <tr key={date}>
+                {date === "total" ? (
+                    <td
+                        style={{
+                            position: "sticky",
+                            left: 0,
+                            fontWeight: "bold",
+                            width: "200px",
+                            background: "#ddd",
+                            whiteSpace: "nowrap",
+                            bottom: "0",
+                            zIndex: "2",
+                        }}
+                    >
+                        TOTAL
+                    </td>
+                ) : (
+                    <td
+                        style={{
+                            position: "sticky",
+                            left: 0,
+                            fontWeight: "bold",
+                            width: "200px",
+                            background: "#fff",
+                            whiteSpace: "nowrap",
+                        }}
+                    >
+                        {date}
+                    </td>
+                )}
+                {cells}
+                <td
+                    className="text-center"
+                    style={{
+                        position: "sticky",
+                        right: 0,
+                        fontWeight: "bold",
+                        width: "80px",
+                        bottom: "0",
+                        background: date === "total" ? "#ddd" : "#fff",
+                    }}
+                >
+                    {rowTotal}
+                </td>
+            </tr>
         );
-      });
-      
-      
-      
-      return (
+    });
+
+    return (
         <div
-          className="container mt-5"
-          style={{ position: "relative", overflowX: "auto", paddingRight: "16px" }}
+            className="container mt-5"
+            style={{
+                position: "relative",
+                overflowX: "auto",
+                paddingRight: "16px",
+            }}
         >
-          <h4>
-          Expected daily demand for selected warehouse and selected duration has been auto-filled. 
-          Type in values or upload new demand forecast file, if necessary.
-          </h4>
-          <div style={{ height: "300px", overflowY: "scroll", overflowX: "scroll"}}>
-            <table className="table table-bordered table-striped">
-                <thead style={{ zIndex: 1 }}>{header}</thead>
-                <tbody style={{ zIndex: 0 }}>{rows}</tbody>
-              
-            </table>      
+            <h4>
+                Expected daily demand for selected warehouse and selected
+                duration has been auto-filled. Type in values or upload new
+                demand forecast file, if necessary.
+            </h4>
+            <div
+                style={{
+                    height: "300px",
+                    overflowY: "scroll",
+                    overflowX: "scroll",
+                }}
+            >
+                <table className="table table-bordered table-striped">
+                    <thead style={{ zIndex: 1 }}>{header}</thead>
+                    <tbody style={{ zIndex: 0 }}>{rows}</tbody>
+                </table>
             </div>
             <br></br>
             <button
-                    className="btn btn-primary btn-lg"
-                    onClick={handleSaveClick}
-                    disabled={!updatedDemands.length}
-                >
-                    Save Data
+                className="btn btn-primary btn-lg"
+                onClick={handleSaveClick}
+                disabled={!updatedDemands.length}
+            >
+                Save Data
             </button>
             <br></br>
             <div>
@@ -255,15 +363,15 @@ function ExpectedDemand() {
                 >
                     Prev
                 </Link>
-                <Link
+                <button
                     className="btn btn-primary btn-lg mx-1"
-                    to={"/manpower-planner/requiremnts"}
+                    onClick={handleNextButtonClick}
                     style={{
                         backgroundColor: "green",
                     }}
                 >
                     Next
-                </Link>
+                </button>
             </div>
 
             <button
@@ -275,6 +383,23 @@ function ExpectedDemand() {
             >
                 Cancel
             </button>
+            <Modal show={showDialog} onHide={handleClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Warning!</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    You have some unsaved data. Do you want to continue without
+                    saving?
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                        No
+                    </Button>
+                    <Button variant="primary" onClick={handleYesClick}>
+                        Yes
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 }
