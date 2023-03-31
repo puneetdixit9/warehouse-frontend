@@ -1,0 +1,29 @@
+.profile-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+  }
+  
+  .profile-info {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ccc;
+    padding: 1rem;
+  }
+  
+  .profile-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 0.5rem 0;
+  }
+  
+  .profile-label {
+    font-weight: bold;
+    margin-right: 0.5rem;
+  }
+  
+  .profile-value {
+    flex-grow: 1;
+  }
+  
