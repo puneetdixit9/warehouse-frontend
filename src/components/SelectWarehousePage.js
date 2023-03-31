@@ -28,7 +28,7 @@ const SelectWarehouse = () => {
         if (!user) {
             navigate("/login");
         }
-        WarehouseService.getWarehouses().then((response) => {
+        WarehouseService.getWarehouses({}).then((response) => {
             if (response.status === 200) {
                 setWarehouses(response.data)
             } else {

@@ -30,8 +30,7 @@ async function login(email, password){
 
 
 async function refresh(){
-    let user = localStorage.getItem("user")
-    user = JSON.parse(user)
+    let user = JSON.parse(localStorage.getItem("user"))
     const response = await fetch(API_URL + 'refresh', {
         method: "GET",
         headers: { 
@@ -46,7 +45,10 @@ async function refresh(){
     } else {
         localStorage.removeItem("user")
     }
-    return data;
+    return {
+        status: response.status,
+        data: data,
+    };
 };
 
 
@@ -59,9 +61,18 @@ async function checkAuthfailAndRetry(response, func, body={}){
     return [response.status,  data]
 }
 
-async function refreshAndRetry(func, body, remainingPath){
-    refresh()
-    return func({ body, remainingPath })
+function refreshAndRetry(func, body, remainingPath){
+    refresh().then(({status, data}) => {
+        if(status === 200) {
+            return func({ body, remainingPath })
+        } else {
+            localStorage.setItem("lastPath", window.location.pathname)
+            window.location.pathname = '/login';
+            alert('session expired, login to continue');
+        }
+    })
+    return
+    
 }
 
 async function change_password(old_password, new_password){

@@ -19,7 +19,13 @@ const Login = () => {
             AuthService.login(email, password)
                 .then((res) => {
                     localStorage.setItem("user", JSON.stringify(res));
-                    navigate("/dashboard");
+                    const lastPath = localStorage.getItem("lastPath")
+                    if (lastPath) {
+                        localStorage.removeItem("lastPath")
+                        navigate(lastPath)
+                    } else {
+                        navigate("/dashboard");
+                    }
                 })
                 .catch((err) => {
                     console.log(err.message);
