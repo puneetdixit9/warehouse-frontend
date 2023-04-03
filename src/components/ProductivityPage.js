@@ -201,6 +201,15 @@ function Productivity() {
             <button
                 className="btn btn-primary btn-lg"
                 onClick={handleSaveClick}
+                style={{
+                    width: "100px",
+                    fontSize: "14px",
+                    alignItems: "center",
+                    borderRadius: "10px",
+                    cursor: updatedProductivity.length ? "pointer" : "default",
+                    backgroundColor: updatedProductivity.length ? "#007bff" : "#CCCCCC",
+                    color: "#FFFFFF",
+                }}
                 disabled={!updatedProductivity.length}
             >
                 Save Data

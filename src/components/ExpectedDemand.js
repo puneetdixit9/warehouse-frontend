@@ -51,7 +51,10 @@ function ExpectedDemand() {
 
     const categories = Object.keys(
         editableData[Object.keys(editableData)[0]]
-    ).filter((category) => category !== "total");
+    ).filter((category) => category !== "total")
+    .sort((a, b) => {
+        return editableData[Object.keys(editableData)[0]][a].category_id - editableData[Object.keys(editableData)[0]][b].category_id;
+    });
 
     const handleDemandChange = (event, date, category) => {
         const newData = { ...editableData };
@@ -291,6 +294,15 @@ function ExpectedDemand() {
             <button
                 className="btn btn-primary btn-lg"
                 onClick={handleSaveClick}
+                style={{
+                    width: "100px",
+                    fontSize: "14px",
+                    alignItems: "center",
+                    borderRadius: "10px",
+                    cursor: updatedDemands.length ? "pointer" : "default",
+                    backgroundColor: updatedDemands.length ? "#007bff" : "#CCCCCC",
+                    color: "#FFFFFF",
+                }}
                 disabled={!updatedDemands.length}
             >
                 Save Data
