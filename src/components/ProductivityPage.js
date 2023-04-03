@@ -62,8 +62,10 @@ function Productivity() {
         WarehouseService.updateProductivityData({body: JSON.stringify({productivity: updatedProductivity})}).then((response) => {
             if (response.status === 200) {
                 setUpdatedProductivity([]);
+            } else if (response.status === 400) {
+                alert("Invalid Values")
             } else {
-                console.error("Error in fetching warehouse")
+                console.error("Error in updating warehouse")
             }
         }).catch((error) => console.error(error));
     };

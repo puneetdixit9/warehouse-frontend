@@ -235,7 +235,9 @@ const Result = () => {
     );
     const categories =
         Object.keys(data).length > 0
-            ? Object.keys(data[Object.keys(data)[0]])
+            ? Object.keys(data[Object.keys(data)[0]]).sort((a, b) => {
+                return data[Object.keys(data)[0]][a].category_id - data[Object.keys(data)[0]][b].category_id;
+            })
             : [];
 
     return (
@@ -426,7 +428,9 @@ const Result = () => {
                                 {uniqueDates.map((date) => {
                                     const categories = Object.keys(
                                         filteredData[date]
-                                    );
+                                    ).sort((a, b) => {
+                                        return filteredData[Object.keys(filteredData)[0]][a].category_id - filteredData[Object.keys(filteredData)[0]][b].category_id;
+                                    });
                                     return (
                                         <>
                                             {categories.map(

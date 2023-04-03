@@ -42,10 +42,15 @@ function ExpectedDemand() {
         WarehouseService.updateExpectedDemandsData({body: JSON.stringify({demands: updatedDemands})}).then((response) => {
             if (response.status === 200) {
                 setUpdatedDemands([]);
+                getDemandsData()
+            } else if (response.status === 400){
+                alert("Invalid Values")
             } else {
                 console.error("Error in updating demands forecasting")
             }
-        }).catch((error) => console.error(error));
+        }).catch((error) => {
+            console.error(error)
+        });
         
     };
 
