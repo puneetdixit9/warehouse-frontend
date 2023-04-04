@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/ResultPage.css";
-import Chart from "chart.js/auto";
 import { utils, writeFile } from "xlsx";
 import WarehouseService from '../services/warehouse.service';
+import LineChart from "./LineChart";
 
 const Result = () => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -11,28 +11,15 @@ const Result = () => {
     const navigate = useNavigate();
     const [data, setData] = useState({});
     const [demandVsFulfillmentData, setDemandVsFulfillmentData] = useState([]);
+    const [demandVsFulfillmentFilteredData, setDemandVsFulfillmentFilteredData] = useState([]);
     const [isDataReady, setIsDataReady] = useState(false);
     const [tableType, setTableType] = useState("resultTable");
     const [additionalData, setAdditionalData] = useState({});
-    const chartContainer = useRef(null);
     const [warehouseName, setWarehouseName] = useState("");
-    const [chartData, setChartData] = useState({
-        labels: [],
-        datasets: [
-            {
-                label: "Demand Total",
-                data: [],
-                borderColor: "red",
-                fill: false,
-            },
-            {
-                label: "Expected Fulfillment Qty",
-                data: [],
-                borderColor: "blue",
-                fill: false,
-            },
-        ],
-    });
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("");
+    const [chartInputData, setChartInputData] = useState({});
     
     useEffect(() => {
         window.scrollTo(0, 25);
@@ -50,87 +37,41 @@ const Result = () => {
                 setAdditionalData(response.data.additional_data);
                 setWarehouseName(response.data.warehouse_name);
                 setIsDataReady(true);
-                // setChartData({
-                //     labels: demandVsFulfillmentData.map((item) => item.date),
-                //     datasets: [
-                //         {
-                //             label: "Demand Total",
-                //             data: demandVsFulfillmentData.map(
-                //                 (item) => item.demand
-                //             ),
-                //             borderColor: "red",
-                //             fill: false,
-                //         },
-                //         {
-                //             label: "Expected Fulfillment Qty",
-                //             data: demandVsFulfillmentData.map(
-                //                 (item) => item.expectedFulfillmentQty
-                //             ),
-                //             borderColor: "blue",
-                //             fill: false,
-                //         },
-                //     ],
-                // });
             } else {
                 console.error("Error in calculating manpower")
             }
         }).catch((error) => console.error(error));
     }, []);
 
+
     useEffect(() => {
-        if (chartContainer && chartContainer.current && isDataReady) {
-            const chartConfig = {
-                type: "line",
-                data: {
-                    labels: demandVsFulfillmentData.map((item) => item.date),
-                    datasets: [
-                        {
-                            label: "Demand Total",
-                            data: demandVsFulfillmentData.map(
-                                (item) => item.demand
-                            ),
-                            borderColor: "red",
-                            fill: false,
-                        },
-                        {
-                            label: "Expected Fulfillment Qty",
-                            data: demandVsFulfillmentData.map(
-                                (item) => item.expectedFulfillmentQty
-                            ),
-                            borderColor: "blue",
-                            fill: false,
-                        },
-                    ],
-                },
-                // data: chartData,
-                options: {
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: "top",
-                            labels: {
-                                usePointStyle: true,
-                                pointStyle: "line"
-                            },
-                        },
-                    },
-                    scales: {
-                        yAxes: [
-                            {
-                                ticks: {
-                                    beginAtZero: true,
-                                },
-                            },
-                        ],
-                    }
-                },
-            };
-            const myChart = new Chart(chartContainer.current, chartConfig);
-            return () => {
-                myChart.destroy();
-            };
+        if (isDataReady) {
+            updateFulfillmentDataFilteredData();
         }
-    });
+      }, [demandVsFulfillmentData, startDate, endDate]);
+
+    const updateFulfillmentDataFilteredData = () => {
+        let filteredData = demandVsFulfillmentData.filter(item => {
+          if (startDate && endDate) {
+            return item.date >= startDate && item.date <= endDate;
+          } else if (startDate) {
+            return item.date >= startDate;
+          } else if (endDate) {
+            return item.date <= endDate;
+          }
+          return true;
+        });
+        setDemandVsFulfillmentFilteredData(filteredData);
+        setChartInputData({
+            labels: filteredData.map((item) => item.date),
+            demand: filteredData.map(
+                (item) => item.demand
+            ),
+            expectedFulfillmentQty:filteredData.map(
+                (item) => item.expectedFulfillmentQty
+            )
+        });
+      };
 
     const handleHome = () => {
         localStorage.removeItem("warehouse");
@@ -141,18 +82,16 @@ const Result = () => {
     const handleCalculateAgain = () => {
         navigate("/manpower-planner/select-warehouse");
     };
-    const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState("");
+    
 
     const handleStartDateChange = (e) => {
         setStartDate(e.target.value);
-        updateChartData(demandVsFulfillmentFilteredData);
+        updateFulfillmentDataFilteredData();
     };
 
     const handleEndDateChange = (e) => {
         setEndDate(e.target.value);
-        updateChartData(demandVsFulfillmentFilteredData);
+        updateFulfillmentDataFilteredData();
     };
 
     const handleCategoryChange = (e) => {
@@ -198,35 +137,6 @@ const Result = () => {
             return filtered;
         }, {});
 
-    const demandVsFulfillmentFilteredData = demandVsFulfillmentData.filter(
-        (item) => {
-            if (startDate && endDate) {
-                return item.date >= startDate && item.date <= endDate;
-            } else if (startDate) {
-                return item.date >= startDate;
-            } else if (endDate) {
-                return item.date <= endDate;
-            }
-            return true;
-        }
-    );
-
-    const updateChartData = (newData) => {
-        setChartData({
-            ...chartData,
-            labels: newData.map((item) => item.date),
-            datasets: [
-                {
-                    ...chartData.datasets[0],
-                    data: newData.map((item) => item.demand),
-                },
-                {
-                    ...chartData.datasets[1],
-                    data: newData.map((item) => item.expectedFulfillmentQty),
-                },
-            ],
-        });
-    };
 
     const uniqueDates = Object.keys(filteredData).filter(
         (key) => key !== "total" && key !== "additional_data"
@@ -360,7 +270,7 @@ const Result = () => {
                     className="text-center"
                     style={{ width: "70%", height: "100%", marginLeft: "18%" }}
                 >
-                    <canvas ref={chartContainer} />
+                    <LineChart inputData={chartInputData}/>
                 </div>
 
                 <br></br>
