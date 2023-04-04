@@ -15,6 +15,7 @@ const Result = () => {
     const [tableType, setTableType] = useState("resultTable");
     const [additionalData, setAdditionalData] = useState({});
     const chartContainer = useRef(null);
+    const [warehouseName, setWarehouseName] = useState("");
     const [chartData, setChartData] = useState({
         labels: [],
         datasets: [
@@ -32,7 +33,7 @@ const Result = () => {
             },
         ],
     });
-
+    
     useEffect(() => {
         if (!user) {
             navigate("/login");
@@ -46,6 +47,7 @@ const Result = () => {
                 setData(response.data.output);
                 setDemandVsFulfillmentData(response.data.demand_vs_fulfillment_data);
                 setAdditionalData(response.data.additional_data);
+                setWarehouseName(response.data.warehouse_name);
                 setIsDataReady(true);
                 // setChartData({
                 //     labels: demandVsFulfillmentData.map((item) => item.date),
@@ -101,6 +103,16 @@ const Result = () => {
                 },
                 // data: chartData,
                 options: {
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: "top",
+                            labels: {
+                                usePointStyle: true,
+                                pointStyle: "line"
+                            },
+                        },
+                    },
                     scales: {
                         yAxes: [
                             {
@@ -109,7 +121,7 @@ const Result = () => {
                                 },
                             },
                         ],
-                    },
+                    }
                 },
             };
             const myChart = new Chart(chartContainer.current, chartConfig);
@@ -243,7 +255,7 @@ const Result = () => {
     return (
         <div className="container">
             <div className="table-container">
-                <h2>Manpower Requirement</h2>
+                <h2>Manpower Requirement {warehouseName ? "(" + warehouseName + ")": "" }</h2>
                 <br></br>
                 <div>
                     <div className="additional-data">
@@ -308,7 +320,7 @@ const Result = () => {
                     <div className="additional-info left">
                         <div>
                             <div className="additional-info-label">
-                                Additional Employee Required
+                                # Employee to be hired
                             </div>
                             <div className="additional-info-value">
                                 {totalData.num_of_new_to_deploy}
@@ -334,8 +346,9 @@ const Result = () => {
                                 Total Hiring Budget:
                             </div>
                             <div className="additional-info-value">
+                            (&#x20B9;)
                                 {additionalData.total_hiring_budget
-                                    ? additionalData.total_hiring_budget
+                                    ? " " + additionalData.total_hiring_budget.toLocaleString('en-IN')
                                     : 0}
                             </div>
                         </div>
@@ -647,7 +660,7 @@ const Result = () => {
                     className="btn btn-primary btn-lg mx-1"
                     onClick={handleHome}
                 >
-                    Dashboard
+                    Home
                 </button>
             </div>
         </div>

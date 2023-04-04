@@ -131,6 +131,7 @@ const Requirement = () => {
                                     className="form-control"
                                     min="0"
                                     max="100"
+                                    required
                                 ></input>
                             </div>
                             <div className="form-group">
@@ -145,6 +146,7 @@ const Requirement = () => {
                                         setCurrentEmployee(e.target.value)
                                     }
                                     className="form-control"
+                                    required
                                 ></input>
                             </div>
 
@@ -160,6 +162,7 @@ const Requirement = () => {
                                         setTotalHiringBudget(e.target.value)
                                     }
                                     className="form-control"
+                                    required
                                 ></input>
                             </div>
                             <div className="form-group">
@@ -174,6 +177,7 @@ const Requirement = () => {
                                         setCostPerEmployee(e.target.value)
                                     }
                                     className="form-control"
+                                    required
                                 ></input>
                             </div>
                             <div className="form-group">
@@ -190,6 +194,7 @@ const Requirement = () => {
                                     className="form-control"
                                     min="0"
                                     max="24"
+                                    required
                                 ></input>
                             </div>
                         </div>
