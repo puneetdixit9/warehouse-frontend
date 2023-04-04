@@ -1,8 +1,9 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import "../styles/HomePage.css";
+import { useEffect } from "react";
 
 function HomePage() {
+    const user = localStorage.getItem("user")
     return (
         <div className="home-page">
             <h1>Warehouse Manpower Plannner</h1>
@@ -10,14 +11,12 @@ function HomePage() {
                 Warehouse Manpower Plannner is a tool to plan man-power of a
                 warehouse accoring to user inputs
             </p>
-            <div className="button-container">
-                <Link to="/login">
-                    <button>Login</button>
-                </Link>
-                <Link to="/signup">
-                    <button>Sign Up</button>
-                </Link>
-            </div>
+            {user ? 
+            <p>
+                You can calculate the manpower by clicking on Manpower Calculator on the navigation bar
+            </p> : null
+            }
+            
         </div>
     );
 }

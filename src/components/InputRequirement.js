@@ -4,7 +4,8 @@ import { toast } from "react-toastify";
 
 const Requirement = () => {
     let requirements = JSON.parse(localStorage.getItem("requirementData"));
-
+    const user = JSON.parse(localStorage.getItem("user"));
+    const warehouse = JSON.parse(localStorage.getItem("warehouse"));
     const [num_current_employees, setCurrentEmployee] = useState("");
     const [day_working_hours, setWorkingHours] = useState("");
     const [cost_per_employee_per_month, setCostPerEmployee] = useState("");
@@ -13,6 +14,13 @@ const Requirement = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
+        window.scrollTo(0, 75);
+        if (!user) {
+            navigate("/login");
+        }
+        if (!warehouse) {
+            navigate("/manpower-planner/select-warehouse");
+        }
         if (requirements) {
             setCurrentEmployee(requirements["num_current_employees"]);
             setAbsentExpected(requirements["percentage_absent_expected"]);
@@ -94,7 +102,7 @@ const Requirement = () => {
     const handleCancelClick = () => {
         localStorage.removeItem("warehouse");
         localStorage.removeItem("requirementData");
-        navigate("/dashboard");
+        navigate("/");
     };
 
     const handleReset = (e) => {
@@ -106,7 +114,7 @@ const Requirement = () => {
         setWorkingHours("");
     };
     return (
-        <div className="row">
+        <div>
             <div
                 className="offset-lg-3 col-lg-6"
                 style={{ marginTop: "100px" }}

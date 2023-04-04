@@ -35,6 +35,7 @@ const Result = () => {
     });
     
     useEffect(() => {
+        window.scrollTo(0, 25);
         if (!user) {
             navigate("/login");
         }
@@ -134,7 +135,7 @@ const Result = () => {
     const handleHome = () => {
         localStorage.removeItem("warehouse");
         localStorage.removeItem("requirementData");
-        navigate("/dashboard");
+        navigate("/");
     };
 
     const handleCalculateAgain = () => {

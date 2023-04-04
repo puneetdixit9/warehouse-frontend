@@ -17,6 +17,7 @@ function ExpectedDemand() {
     const [showDialog, setShowDialog] = useState(false);
 
     useEffect(() => {
+        window.scrollTo(0, 25);
         if (!warehouse) {
             navigate("/manpower-planner/select-warehouse");
             return;
@@ -83,7 +84,7 @@ function ExpectedDemand() {
 
     const handleCancelClick = () => {
         localStorage.removeItem("warehouse");
-        navigate("/dashboard");
+        navigate("/");
     };
 
     const handleNextButtonClick = () => {

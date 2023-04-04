@@ -5,7 +5,6 @@ import WarehouseService from '../services/warehouse.service'
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-
 import "../styles/SelectWarehouse.css";
 
 const SelectWarehouse = () => {
@@ -61,11 +60,11 @@ const SelectWarehouse = () => {
 
     const handleCancelClick = () => {
         localStorage.removeItem("warehouse");
-        navigate("/dashboard");
+        navigate("/");
     };
 
     return (
-        <div className="row">
+        <div>
             <div
                 className="offset-lg-3 col-lg-6"
                 style={{ marginTop: "100px" }}

@@ -16,6 +16,7 @@ function Productivity() {
     const [showDialog, setShowDialog] = useState(false);
 
     useEffect(() => {
+        window.scrollTo(0, 25);
         if (!user) {
             navigate("/login");
         }
@@ -27,7 +28,7 @@ function Productivity() {
 
     const handleCancelClick = () => {
         localStorage.removeItem("warehouse");
-        navigate("/dashboard");
+        navigate("/");
     };
 
     const getProductivityData = () => {

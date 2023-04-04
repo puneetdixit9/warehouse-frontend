@@ -24,7 +24,7 @@ const Login = () => {
                         localStorage.removeItem("lastPath")
                         navigate(lastPath)
                     } else {
-                        navigate("/dashboard");
+                        navigate("/");
                     }
                 })
                 .catch((err) => {
