@@ -30,12 +30,20 @@ export const options = {
       labels: {
           usePointStyle: true,
           pointStyle: "line",
-          pointStyleWidth: 50,
+          pointStyleWidth: 25,
       },
   },
     title: {
       display: true,
-      text: 'Demand Vs Fulfillment Chart',
+      text: 'Expected Demand Vs Fulfillment Chart',
+      font: {
+        weight: 'bold',
+        size: 20,
+      },
+      padding: {
+        top: 20,
+        bottom: 10
+    }
     },
   },
 };
@@ -46,19 +54,26 @@ const LineChart = ({inputData}) => {
     labels: inputData.labels,
     datasets: [
       {
-        label: 'Demand',
+        label: 'Expected Demand',
         data: inputData.demand,
         borderColor: 'rgb(255, 99, 132)',
         backgroundColor: 'rgba(255, 99, 132, 0.5)',
         borderWidth: 3
       },
       {
-        label: 'Fulfillment',
+        label: 'Fulfillment With Existing Employees',
+        data: inputData.fulfillmentWithExisting,
+        borderColor: 'rgb(0, 255, 0)',
+        backgroundColor: 'rgba(53, 162, 235, 0.5)',
+        borderWidth: 3
+      },
+      {
+        label: 'Fulfillment With total Employees',
         data: inputData.expectedFulfillmentQty,
         borderColor: 'rgb(53, 162, 235)',
         backgroundColor: 'rgba(53, 162, 235, 0.5)',
         borderWidth: 3
-      },
+      }
     ],
   };
   return (

@@ -10,8 +10,6 @@ const Result = () => {
     const requirementData = localStorage.getItem("requirementData");
     const navigate = useNavigate();
     const [data, setData] = useState({});
-    const [demandVsFulfillmentData, setDemandVsFulfillmentData] = useState([]);
-    const [demandVsFulfillmentFilteredData, setDemandVsFulfillmentFilteredData] = useState([]);
     const [isDataReady, setIsDataReady] = useState(false);
     const [tableType, setTableType] = useState("resultTable");
     const [additionalData, setAdditionalData] = useState({});
@@ -19,7 +17,10 @@ const Result = () => {
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("");
-    const [chartInputData, setChartInputData] = useState({});
+    const [chartData, setChartData] = useState({});
+    const [demandVsFulfillmentData, setDemandVsFulfillmentData] = useState({});
+    let selectedCategoryForGraph = "";
+    let errorDisplay = false;
     
     useEffect(() => {
         window.scrollTo(0, 25);
@@ -33,10 +34,13 @@ const Result = () => {
         WarehouseService.catculateManpower({body: requirementData}).then((response) => {
             if (response.status === 200) {
                 setData(response.data.output);
-                setDemandVsFulfillmentData(response.data.demand_vs_fulfillment_data);
                 setAdditionalData(response.data.additional_data);
                 setWarehouseName(response.data.warehouse_name);
+                setDemandVsFulfillmentData(response.data.demand_vs_fulfillment_data)
                 setIsDataReady(true);
+            } else if (response.status === 400 && !errorDisplay) {
+                errorDisplay = true;
+                alert("Invalid Input Data")
             } else {
                 console.error("Error in calculating manpower")
             }
@@ -51,25 +55,35 @@ const Result = () => {
       }, [demandVsFulfillmentData, startDate, endDate]);
 
     const updateFulfillmentDataFilteredData = () => {
-        let filteredData = demandVsFulfillmentData.filter(item => {
-          if (startDate && endDate) {
-            return item.date >= startDate && item.date <= endDate;
-          } else if (startDate) {
-            return item.date >= startDate;
-          } else if (endDate) {
-            return item.date <= endDate;
-          }
-          return true;
-        });
-        setDemandVsFulfillmentFilteredData(filteredData);
-        setChartInputData({
-            labels: filteredData.map((item) => item.date),
-            demand: filteredData.map(
-                (item) => item.demand
-            ),
-            expectedFulfillmentQty:filteredData.map(
-                (item) => item.expectedFulfillmentQty
-            )
+        let filteredDates = Object.keys(demandVsFulfillmentData).filter(date => {
+            if (startDate && endDate) {
+              return date >= startDate && date <= endDate;
+            } else if (startDate) {
+              return date >= startDate;
+            } else if (endDate) {
+              return date <= endDate;
+            }
+            return true;
+          })
+        let demand = [];
+        let expectedFulfillmentQty = [];
+        let fulfillmentWithExisting = []
+        if (selectedCategoryForGraph === "") {
+            demand = filteredDates.map((date) => demandVsFulfillmentData[date].total.expected_demand)
+            expectedFulfillmentQty = filteredDates.map((date) => demandVsFulfillmentData[date].total.fulfillment_with_total)
+            fulfillmentWithExisting = filteredDates.map((date) => demandVsFulfillmentData[date].total.fulfillment_with_current)
+
+        } else {
+            demand = filteredDates.map((date) => demandVsFulfillmentData[date][selectedCategoryForGraph].expected_demand)   
+            expectedFulfillmentQty = filteredDates.map((date) => demandVsFulfillmentData[date][selectedCategoryForGraph].fulfillment_with_total)
+            fulfillmentWithExisting = filteredDates.map((date) => demandVsFulfillmentData[date][selectedCategoryForGraph].fulfillment_with_current)
+        }
+
+        setChartData({
+            labels: filteredDates,
+            demand: demand,
+            expectedFulfillmentQty: expectedFulfillmentQty,
+            fulfillmentWithExisting: fulfillmentWithExisting,
         });
       };
 
@@ -96,6 +110,8 @@ const Result = () => {
 
     const handleCategoryChange = (e) => {
         setSelectedCategory(e.target.value);
+        selectedCategoryForGraph = e.target.value;
+        updateFulfillmentDataFilteredData();
     };
 
     const handleTableTypeChange = (e) => {
@@ -136,6 +152,31 @@ const Result = () => {
             });
             return filtered;
         }, {});
+
+    const filteredDemandData = Object.keys(demandVsFulfillmentData)
+        .filter((date) => {
+            if (startDate && endDate) {
+                return date >= startDate && date <= endDate;
+            } else if (startDate) {
+                return date >= startDate;
+            } else if (endDate) {
+                return date <= endDate;
+            }
+            return true;
+        })
+        .reduce((filtered, date) => {
+            const categories = Object.keys(demandVsFulfillmentData[date]);
+            categories.forEach((category) => {
+                if (!selectedCategory || category === selectedCategory) {
+                    if (!filtered[date]) {
+                        filtered[date] = {};
+                    }
+                    filtered[date][category] = demandVsFulfillmentData[date][category];
+                }
+            });
+            return filtered;
+        }, {});
+
 
 
     const uniqueDates = Object.keys(filteredData).filter(
@@ -270,7 +311,7 @@ const Result = () => {
                     className="text-center"
                     style={{ width: "70%", height: "100%", marginLeft: "18%" }}
                 >
-                    <LineChart inputData={chartInputData}/>
+                    <LineChart inputData={chartData}/>
                 </div>
 
                 <br></br>
@@ -502,7 +543,7 @@ const Result = () => {
                                                 backgroundColor: "#ddd",
                                             }}
                                         >
-                                            Demand
+                                            Category
                                         </th>
                                         <th
                                             style={{
@@ -510,42 +551,108 @@ const Result = () => {
                                                 backgroundColor: "#ddd",
                                             }}
                                         >
-                                            Expected Fulfillment Qty
+                                            Expected Demand
+                                        </th>
+                                        <th
+                                            style={{
+                                                textAlign: "center",
+                                                backgroundColor: "#ddd",
+                                            }}
+                                        >
+                                            Fulfillment With Existing Employee
+                                        </th>
+                                        <th
+                                            style={{
+                                                textAlign: "center",
+                                                backgroundColor: "#ddd",
+                                            }}
+                                        >
+                                            Fulfillment With Total Employee
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {demandVsFulfillmentFilteredData.map(
-                                        ({
-                                            date,
-                                            demand,
-                                            expectedFulfillmentQty,
-                                        }) => (
-                                            <tr key={date}>
-                                                <td
-                                                    style={{
-                                                        textAlign: "center",
-                                                    }}
-                                                >
-                                                    {date}
-                                                </td>
-                                                <td
-                                                    style={{
-                                                        textAlign: "center",
-                                                    }}
-                                                >
-                                                    {demand}
-                                                </td>
-                                                <td
-                                                    style={{
-                                                        textAlign: "center",
-                                                    }}
-                                                >
-                                                    {expectedFulfillmentQty}
-                                                </td>
-                                            </tr>
-                                        )
-                                    )}
+                                {uniqueDates.map((date) => {
+                                    const categories = Object.keys(
+                                        filteredDemandData[date]
+                                    ).sort((a, b) => {
+                                        return filteredDemandData[Object.keys(filteredDemandData)[0]][a].category_id - filteredDemandData[Object.keys(filteredDemandData)[0]][b].category_id;
+                                    });
+                                    return (
+                                        <>
+                                            {categories.map(
+                                                (category, index) => {
+                                                    const {
+                                                        expected_demand,
+                                                        fulfillment_with_current,
+                                                        fulfillment_with_total
+                                                    } =
+                                                    demandVsFulfillmentData[date][
+                                                            category
+                                                        ];
+                                                    return (
+                                                        <tr
+                                                            key={`${date}_${category}`}
+                                                        >
+                                                            {index === 0 ? (
+                                                                <td
+                                                                    style={{
+                                                                        textAlign:
+                                                                            "center",
+                                                                    }}
+                                                                    rowSpan={
+                                                                        categories.length === 1 ? categories.length : categories.length - 1
+                                                                    }
+                                                                >
+                                                                    {date}
+                                                                </td>
+                                                            ) : null}
+                                                            <td
+                                                                style={{
+                                                                    textAlign:"center",
+                                                                    fontWeight: category === "total" ? "bold" : ""
+                                                                }}
+                                                                colSpan={category === "total" ? 2 : 1}
+                                                            >
+                                                                {category === "total" ? "Total (" +date+")": category}
+                                                            
+                                                            </td>
+                                                            <td
+                                                                style={{
+                                                                    textAlign: "center",
+                                                                    fontWeight: category === "total" ? "bold" : ""
+                                                                }}
+                                                            >
+                                                                {
+                                                                    expected_demand
+                                                                }
+                                                            </td>
+                                                            <td
+                                                                style={{
+                                                                    textAlign: "center",
+                                                                    fontWeight: category === "total" ? "bold" : ""
+                                                                }}
+                                                            >
+                                                                {
+                                                                    fulfillment_with_current
+                                                                }
+                                                            </td>
+                                                            <td
+                                                                style={{
+                                                
+                                                                    textAlign: "center",
+                                                                    fontWeight: category === "total" ? "bold" : ""
+                                                                }}
+                                                            >
+                                                                {fulfillment_with_total}
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                }
+                                            )}
+                                        </>
+                                    );
+                                })}
                                 </tbody>
                             </table>
                         </div>
