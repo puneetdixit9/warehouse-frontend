@@ -18,7 +18,7 @@ const Login = () => {
         if (validate()) {
             AuthService.login(email, password)
                 .then((res) => {
-                    localStorage.setItem("user", JSON.stringify(res));
+                    localStorage.setItem("token", JSON.stringify(res));
                     const lastPath = localStorage.getItem("lastPath")
                     if (lastPath) {
                         localStorage.removeItem("lastPath")
@@ -29,7 +29,7 @@ const Login = () => {
                 })
                 .catch((err) => {
                     console.log(err.message);
-                    toast.error("Failed :" + err.message);
+                    alert("Failed :" + err.message);
                 });
         }
     };

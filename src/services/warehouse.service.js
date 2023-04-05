@@ -2,15 +2,14 @@ import { API_BASE_URL, WAREHOUSE, BENCHMARK_PRODUCTIVITY, UPLOAD_PRODUCTIVITY_FI
 import AuthService from "./auth.service";
 
 function getHeaders() {
-    const user = JSON.parse(localStorage.getItem("user"))
+    const token = JSON.parse(localStorage.getItem("token"))
     return { 
         'content-type': 'application/json',
-        'Authorization': 'Bearer ' + user.access_token
+        'Authorization': 'Bearer ' + token.access_token
     }
 }
 
 async function getWarehouses({ body={}, remainingPath="" }) {
-    const user = JSON.parse(localStorage.getItem("user"))
     try {
       const response = await fetch(API_BASE_URL + WAREHOUSE + remainingPath, {
         method: "GET",

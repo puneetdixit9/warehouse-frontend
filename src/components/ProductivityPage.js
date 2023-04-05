@@ -9,7 +9,7 @@ function Productivity() {
     const fileInputRef = useRef(null);
     const [fileSelected, setFileSelected] = useState(false);
     const navigate = useNavigate();
-    const user = JSON.parse(localStorage.getItem("user"));
+    const token = JSON.parse(localStorage.getItem("token"));
     const warehouse = JSON.parse(localStorage.getItem("warehouse"));
     const [fileUploading, setFileUploading] = useState(false);
     const [updatedProductivity, setUpdatedProductivity] = useState([]);
@@ -17,7 +17,7 @@ function Productivity() {
 
     useEffect(() => {
         window.scrollTo(0, 25);
-        if (!user) {
+        if (!token) {
             navigate("/login");
         }
         if (!warehouse) {

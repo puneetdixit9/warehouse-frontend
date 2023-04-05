@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 
 const Requirement = () => {
     let requirements = JSON.parse(localStorage.getItem("requirementData"));
-    const user = JSON.parse(localStorage.getItem("user"));
+    const token = JSON.parse(localStorage.getItem("token"));
     const warehouse = JSON.parse(localStorage.getItem("warehouse"));
     const [num_current_employees, setCurrentEmployee] = useState("");
     const [day_working_hours, setWorkingHours] = useState("");
@@ -15,7 +15,7 @@ const Requirement = () => {
 
     useEffect(() => {
         window.scrollTo(0, 75);
-        if (!user) {
+        if (!token) {
             navigate("/login");
         }
         if (!warehouse) {

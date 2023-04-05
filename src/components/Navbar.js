@@ -8,7 +8,7 @@ import { Modal, Button } from "react-bootstrap";
 function Navbar() {
     const [showLogout, setShowLogout] = useState(false);
     const navigate = useNavigate();
-    const user = localStorage.getItem("user");
+    const token = localStorage.getItem("token");
 
     const handleLogout = () => {
         setShowLogout(true);
@@ -17,6 +17,7 @@ function Navbar() {
     const confirmLogout = () => {
         AuthService.logoutAccessToken();
         AuthService.logoutRefreshToken();
+        localStorage.removeItem("token");
         localStorage.removeItem("user");
         setShowLogout(false);
         navigate("/login");
@@ -34,29 +35,29 @@ function Navbar() {
           <li className="nav-item active">
             <Link className="nav-link" to="/">Home</Link>
           </li>
-          { user ? 
+          { token ? 
           <li className="nav-item">
             <Link className="nav-link" to="/profile">Profile</Link>
           </li>
           : null}
-          { !user && window.location.pathname !== "/login"? 
+          { !token && window.location.pathname !== "/login"? 
           <li className="nav-item">
             <Link className="nav-link" to="/login">Login</Link>
           </li>
           : null}
-          { !user && window.location.pathname !== "/signup"? 
+          { !token && window.location.pathname !== "/signup"? 
           <li className="nav-item">
             <Link className="nav-link" to="/signup">Signup</Link>
           </li>
           : null}
-          { user && window.location.pathname !== "/login" && window.location.pathname !== "/signup"? 
+          { token && window.location.pathname !== "/login" && window.location.pathname !== "/signup"? 
           <li className="nav-item">
             <Link className="nav-link" to="/manpower-planner/select-warehouse">Manpower Calculator</Link>
           </li>
           : null}
         </ul>
       </div>
-      {user && window.location.pathname !== "/login" && window.location.pathname !== "/signup"? 
+      {token && window.location.pathname !== "/login" && window.location.pathname !== "/signup"? 
       <button className="nav-item mr-3 nav-link p-3" onClick={handleLogout} style={{
         width: "90px",
         fontSize: "15px",

@@ -2,8 +2,6 @@ import './App.css';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Login from './components/LoginPage';
 import { ToastContainer } from 'react-toastify';
-// import Dashboard from './Dashboard';
-import AddAddress from './AddAddress';
 import ChangePassword from './changePassword';
 
 import HomePage from './components/HomePage';
@@ -32,7 +30,6 @@ function App() {
         <Route path='/manpower-planner/expected-demands' element={<ExpectedDemand/>}></Route>
         <Route path='/manpower-planner/requiremnts' element={<Requirement/>}></Route>
         <Route path='/manpower-planner/result' element={<Result/>}></Route>
-        <Route path='/add_address' element={<AddAddress/>}></Route>
 
         <Route path='/change_password' element={<ChangePassword/>}></Route>
       </Routes>

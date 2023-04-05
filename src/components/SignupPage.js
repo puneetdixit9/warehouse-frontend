@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 import AuthService from "../services/auth.service";
 
 const SignupPage = () => {
@@ -36,16 +35,16 @@ const SignupPage = () => {
         }
 
         if (!isproceed) {
-            toast.warning(errormessage);
+            alert(errormessage);
         } else {
             if (/^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[A-Za-z]+$/.test(email)) {
             } else {
                 isproceed = false;
-                toast.warning("Please enter the valid email");
+                alert("Please enter the valid email");
             }
             if (password !== confirmPassword) {
                 isproceed = false;
-                toast.warning("Password and Confirm Password are not same");
+                alert("Password and Confirm Password are not same");
             }
         }
         return isproceed;
@@ -62,14 +61,14 @@ const SignupPage = () => {
             AuthService.signup(signupData)
                 .then((res) => {
                     if (res[0] === 201) {
-                        toast.success("Registered successfully.");
+                        alert("Registered successfully.");
                         navigate("/login");
                     } else {
-                        toast.error(res[1]["msg"]);
+                        alert(res[1]["msg"]);
                     }
                 })
                 .catch((err) => {
-                    toast.error("Failed :" + err.message);
+                    alert("Failed :" + err.message);
                 });
         }
     };

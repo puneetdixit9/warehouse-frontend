@@ -1,8 +1,17 @@
-const API_URL = "http://127.0.0.1:5000/";
+import { API_BASE_URL, PROFILE} from '../constants.js';
+
+
+function getHeaders() {
+    const token = JSON.parse(localStorage.getItem("token"))
+    return { 
+        'content-type': 'application/json',
+        'Authorization': 'Bearer ' + token.access_token
+    }
+}
 
 
 async function signup(signupData){
-    const response = await fetch(API_URL + 'signup', {
+    const response = await fetch(API_BASE_URL + 'signup', {
         method: "POST",
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(signupData)
@@ -15,7 +24,7 @@ async function signup(signupData){
 
 async function login(email, password){
     let regobj = { password, email};
-    const response = await fetch(API_URL + 'login', {
+    const response = await fetch(API_BASE_URL + 'login', {
         method: "POST",
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(regobj)
@@ -30,20 +39,20 @@ async function login(email, password){
 
 
 async function refresh(){
-    let user = JSON.parse(localStorage.getItem("user"))
-    const response = await fetch(API_URL + 'refresh', {
+    let token = JSON.parse(localStorage.getItem("token"))
+    const response = await fetch(API_BASE_URL + 'refresh', {
         method: "GET",
         headers: { 
             'content-type': 'application/json',
-            'Authorization': 'Bearer ' + user.refresh_token
+            'Authorization': 'Bearer ' + token.refresh_token
         },
     });
     let data = await response.json();
     if (response.status === 200){
-        user.access_token = data.access_token
-        localStorage.setItem("user", JSON.stringify(user))
+        token.access_token = data.access_token
+        localStorage.setItem("token", JSON.stringify(token))
     } else {
-        localStorage.removeItem("user")
+        localStorage.removeItem("token")
     }
     return {
         status: response.status,
@@ -76,14 +85,14 @@ function refreshAndRetry(func, body, remainingPath){
 }
 
 async function change_password(old_password, new_password){
-    let user = localStorage.getItem("user")
-    user = JSON.parse(user)
+    let token = localStorage.getItem("token")
+    token = JSON.parse(token)
     let regobj = { old_password, new_password};
-    const response = await fetch(API_URL + 'change_password', {
+    const response = await fetch(API_BASE_URL + 'change_password', {
         method: "PUT",
         headers: { 
             'content-type': 'application/json',
-            'Authorization': 'Bearer ' + user.access_token
+            'Authorization': 'Bearer ' + token.access_token
         },
         body: JSON.stringify(regobj)
     });
@@ -98,26 +107,26 @@ async function change_password(old_password, new_password){
 
 
 function logoutAccessToken() {
-    let user = localStorage.getItem("user")
-    user = JSON.parse(user)
-    const response = fetch(API_URL + 'logout', {
+    let token = localStorage.getItem("token")
+    token = JSON.parse(token)
+    const response = fetch(API_BASE_URL + 'logout', {
         method: "DELETE",
         headers: { 
             'content-type': 'application/json',
-            'Authorization': 'Bearer ' + user.access_token
+            'Authorization': 'Bearer ' + token.access_token
         },
     });
     return response
 }
 
 function logoutRefreshToken(){
-    let user = localStorage.getItem("user")
-    user = JSON.parse(user)
-    const response = fetch(API_URL + 'logout', {
+    let token = localStorage.getItem("token")
+    token = JSON.parse(token)
+    const response = fetch(API_BASE_URL + 'logout', {
         method: "DELETE",
         headers: { 
             'content-type': 'application/json',
-            'Authorization': 'Bearer ' + user.refresh_token
+            'Authorization': 'Bearer ' + token.refresh_token
         },
     });
     return response
@@ -131,6 +140,52 @@ async function logout(){
     return [data, data2]
 }
 
+
+async function get_profile({ body={}, remainingPath="" }) {
+    try {
+      const response = await fetch(API_BASE_URL + PROFILE, {
+        method: "GET",
+        headers: getHeaders(),
+      });
+      
+      const status = response.status;
+      const data = await response.json();
+  
+      return handleResponse(get_profile, status, data, body, remainingPath);
+    } catch (error) {
+      throw new Error(`Error fetching profile: ${error.message}`);
+    }
+}
+
+async function update_profile({ body={}, remainingPath="" }) {
+    try {
+      const response = await fetch(API_BASE_URL + PROFILE, {
+        method: "PUT",
+        headers: getHeaders(),
+        body: body,
+      });
+      
+      const status = response.status;
+      const data = await response.json();
+  
+      return handleResponse(update_profile, status, data, body, remainingPath);
+    } catch (error) {
+      throw new Error(`Error updating profile: ${error.message}`);
+    }
+}
+
+function handleResponse(func, status, data, body, remainingPath) {
+    if (status === 401 && data.msg === "Token has expired") {
+      return refreshAndRetry(func, body, remainingPath);
+    } else {
+      return {
+        status: status,
+        data: data
+      }
+    }
+}
+
+
 const AuthService = {
     signup,
     login,
@@ -140,7 +195,9 @@ const AuthService = {
     checkAuthfailAndRetry,
     logoutRefreshToken,
     logoutAccessToken,
-    refreshAndRetry
+    refreshAndRetry,
+    get_profile,
+    update_profile,
 }
 
 export default AuthService;

@@ -7,7 +7,7 @@ import WarehouseService from '../services/warehouse.service';
 function ExpectedDemand() {
     const [updatedDemands, setUpdatedDemands] = useState([]);
     const [editableData, setEditableData] = useState([{}]);
-    const user = JSON.parse(localStorage.getItem("user"));
+    const token = JSON.parse(localStorage.getItem("token"));
     const warehouse = JSON.parse(localStorage.getItem("warehouse"));
     const [fileUploading, setFileUploading] = useState(false);
 
@@ -22,7 +22,7 @@ function ExpectedDemand() {
             navigate("/manpower-planner/select-warehouse");
             return;
         }
-        if (!user) {
+        if (!token) {
             navigate("/login");
         }
         getDemandsData();

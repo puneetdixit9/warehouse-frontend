@@ -6,7 +6,7 @@ import WarehouseService from '../services/warehouse.service';
 import LineChart from "./LineChart";
 
 const Result = () => {
-    const user = JSON.parse(localStorage.getItem("user"));
+    const token = JSON.parse(localStorage.getItem("token"));
     const requirementData = localStorage.getItem("requirementData");
     const navigate = useNavigate();
     const [data, setData] = useState({});
@@ -19,12 +19,11 @@ const Result = () => {
     const [selectedCategory, setSelectedCategory] = useState("");
     const [chartData, setChartData] = useState({});
     const [demandVsFulfillmentData, setDemandVsFulfillmentData] = useState({});
-    let selectedCategoryForGraph = "";
     let errorDisplay = false;
     
     useEffect(() => {
         window.scrollTo(0, 25);
-        if (!user) {
+        if (!token) {
             navigate("/login");
         }
         if (!requirementData) {
@@ -52,7 +51,7 @@ const Result = () => {
         if (isDataReady) {
             updateFulfillmentDataFilteredData();
         }
-      }, [demandVsFulfillmentData, startDate, endDate]);
+      }, [demandVsFulfillmentData, startDate, endDate, selectedCategory]);
 
     const updateFulfillmentDataFilteredData = () => {
         let filteredDates = Object.keys(demandVsFulfillmentData).filter(date => {
@@ -68,15 +67,15 @@ const Result = () => {
         let demand = [];
         let expectedFulfillmentQty = [];
         let fulfillmentWithExisting = []
-        if (selectedCategoryForGraph === "") {
+        if (selectedCategory === "") {
             demand = filteredDates.map((date) => demandVsFulfillmentData[date].total.expected_demand)
             expectedFulfillmentQty = filteredDates.map((date) => demandVsFulfillmentData[date].total.fulfillment_with_total)
             fulfillmentWithExisting = filteredDates.map((date) => demandVsFulfillmentData[date].total.fulfillment_with_current)
 
         } else {
-            demand = filteredDates.map((date) => demandVsFulfillmentData[date][selectedCategoryForGraph].expected_demand)   
-            expectedFulfillmentQty = filteredDates.map((date) => demandVsFulfillmentData[date][selectedCategoryForGraph].fulfillment_with_total)
-            fulfillmentWithExisting = filteredDates.map((date) => demandVsFulfillmentData[date][selectedCategoryForGraph].fulfillment_with_current)
+            demand = filteredDates.map((date) => demandVsFulfillmentData[date][selectedCategory].expected_demand)   
+            expectedFulfillmentQty = filteredDates.map((date) => demandVsFulfillmentData[date][selectedCategory].fulfillment_with_total)
+            fulfillmentWithExisting = filteredDates.map((date) => demandVsFulfillmentData[date][selectedCategory].fulfillment_with_current)
         }
 
         setChartData({
@@ -100,18 +99,14 @@ const Result = () => {
 
     const handleStartDateChange = (e) => {
         setStartDate(e.target.value);
-        updateFulfillmentDataFilteredData();
     };
 
     const handleEndDateChange = (e) => {
         setEndDate(e.target.value);
-        updateFulfillmentDataFilteredData();
     };
 
     const handleCategoryChange = (e) => {
         setSelectedCategory(e.target.value);
-        selectedCategoryForGraph = e.target.value;
-        updateFulfillmentDataFilteredData();
     };
 
     const handleTableTypeChange = (e) => {

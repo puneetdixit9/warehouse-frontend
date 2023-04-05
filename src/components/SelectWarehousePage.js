@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 import WarehouseService from '../services/warehouse.service'
 
 import DatePicker from "react-datepicker";
@@ -15,7 +14,7 @@ const SelectWarehouse = () => {
     const [selectedWarehouse, setSelectedWarehouse] = useState("");
 
     useEffect(() => {
-        let user = localStorage.getItem("user");
+        let token = localStorage.getItem("token");
         let warehouse = localStorage.getItem("warehouse");
         warehouse = JSON.parse(warehouse);
         if (warehouse) {
@@ -23,8 +22,8 @@ const SelectWarehouse = () => {
             setEndDate(new Date(warehouse["endDate"]));
             setSelectedWarehouse(warehouse["id"]);
         }
-        user = JSON.parse(user);
-        if (!user) {
+        token = JSON.parse(token);
+        if (!token) {
             navigate("/login");
         }
         WarehouseService.getWarehouses({}).then((response) => {
@@ -45,7 +44,7 @@ const SelectWarehouse = () => {
         if (!selectedWarehouse) {
             console.log("warehouse not selected");
         } else if (startDate > endDate) {
-            toast.error("End date cannot greater the start date");
+            alert("End date cannot greater the start date");
             return;
         } else {
             const warehouse = {
