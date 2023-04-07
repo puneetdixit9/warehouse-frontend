@@ -85,11 +85,10 @@ const Login = () => {
                             </div>
                         </div>
                         <div className="card-footer">
-                            <button type="submit" className="btn btn-primary">
+                            <button type="submit" className="btn btn-primary mx-1">
                                 Login
                             </button>{" "}
-                            |
-                            <Link className="btn btn-success" to={"/signup"}>
+                            <Link className="btn btn-success mx-1" to={"/signup"}>
                                 New User
                             </Link>
                         </div>

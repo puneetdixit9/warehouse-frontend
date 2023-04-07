@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Card, Button, Form } from "react-bootstrap";
+import { Link } from "react-router-dom";
 import AuthService from '../services/auth.service'
 
 
@@ -9,8 +10,9 @@ const Profile = () => {
     const [editable, setEditable] = useState(false);
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
-    const [gender, setGender] = useState("");
-    const [address, setAddress] = useState("");
+    const [department, setDepartment] = useState("");
+    const [userFunction, setUserFunction] = useState("");
+    const [role, setRole] = useState("");
     const [mobileNumber, setMobileNumber] = useState("");
     const [email, setEmail] = useState("");
     const [username, setUsername] = useState("");
@@ -22,11 +24,12 @@ const Profile = () => {
                   setUser(response.data)
                   setFirstName(response.data.first_name)
                   setLastName(response.data.last_name)
-                  setGender(response.data.gender)
-                  setAddress(response.data.address)
+                  setDepartment(response.data.department)
+                  setUserFunction(response.data.function)
                   setMobileNumber(response.data.mobile_number)
                   setEmail(response.data.email)
                   setUsername(response.data.username)
+                  setRole(response.data.role)
                   localStorage.setItem("user", JSON.stringify(response.data))                
               } else {
                   alert("Error in fetching the profile")
@@ -36,11 +39,12 @@ const Profile = () => {
       } else {
         setFirstName(user.first_name)
         setLastName(user.last_name)
-        setGender(user.gender)
-        setAddress(user.address)
+        setDepartment(user.department)
+        setUserFunction(user.function)
         setMobileNumber(user.mobile_number)
         setEmail(user.email)
         setUsername(user.username)
+        setRole(user.role)
       }
   }, []);
 
@@ -52,9 +56,10 @@ const Profile = () => {
       let request_body = {
         first_name: firstName,
         last_name: lastName,
-        address: address,
+        function: userFunction,
         mobile_number: mobileNumber,
-        gender: gender 
+        department: department,
+        role: role
       } 
       AuthService.update_profile({ body: JSON.stringify(request_body) }).then((response) => {
           if (response.status === 200) {
@@ -75,9 +80,10 @@ const Profile = () => {
         setEditable(false);
         setFirstName(user.first_name);
         setLastName(user.last_name);
-        setGender(user.gender);
-        setAddress(user.address);
+        setDepartment(user.department);
+        setUserFunction(user.function);
         setMobileNumber(user.mobile_number);
+        setRole(user.role);
     };
 
     const handleChangeFirstName = (event) => {
@@ -88,14 +94,18 @@ const Profile = () => {
         setLastName(event.target.value);
     };
 
-    const handleChangeGender = (event) => {
+    const handleChangeDepartment = (event) => {
         if (event.target.value !== "") {
-          setGender(event.target.value);
+          setDepartment(event.target.value);
         }
     };
 
-    const handleChangeAddress = (event) => {
-        setAddress(event.target.value);
+    const handleChangeuserFunction = (event) => {
+        setUserFunction(event.target.value);
+    };
+
+    const handleChangeUserRole = (event) => {
+        setRole(event.target.value);
     };
 
     const handleChangeMobileNumber = (event) => {
@@ -150,31 +160,39 @@ const Profile = () => {
                     </div>
                 </div>
                 <div className="mb-3">
-                    <span className="fw-bold me-2">Gender:</span>
-                    {editable ? (
-                        <Form.Control
-                            as="select"
-                            value={gender}
-                            onChange={handleChangeGender}
-                        >   <option value="">Select Gender</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
-                        </Form.Control>
-                    ) : (
-                        <span>{gender}</span>
-                    )}
-                </div>
-                <div className="mb-3">
-                    <span className="fw-bold me-2">Address:</span>
+                    <span className="fw-bold me-2">Department:</span>
                     {editable ? (
                         <Form.Control
                             type="text"
-                            value={address}
-                            onChange={handleChangeAddress}
+                            value={department}
+                            onChange={handleChangeDepartment}
                         />
                     ) : (
-                        <span>{address}</span>
+                        <span>{department}</span>
+                    )}
+                </div>
+                <div className="mb-3">
+                    <span className="fw-bold me-2">Function:</span>
+                    {editable ? (
+                        <Form.Control
+                            type="text"
+                            value={userFunction}
+                            onChange={handleChangeuserFunction}
+                        />
+                    ) : (
+                        <span>{userFunction}</span>
+                    )}
+                </div>
+                <div className="mb-3">
+                    <span className="fw-bold me-2">Role:</span>
+                    {editable ? (
+                        <Form.Control
+                            type="text"
+                            value={role}
+                            onChange={handleChangeUserRole}
+                        />
+                    ) : (
+                        <span>{role}</span>
                     )}
                 </div>
                 <div className="mb-3">
@@ -198,6 +216,15 @@ const Profile = () => {
                         >
                             Edit Profile
                         </Button>
+                    )}
+                    {!editable && (
+                        <Link
+                            className="btn"
+                            to={"/change-password"}
+                            style={{backgroundColor: "red"}}
+                        >
+                            Change Password
+                        </Link>
                     )}
                     {editable && (
                         <>

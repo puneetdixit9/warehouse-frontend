@@ -26,7 +26,6 @@ function Navbar() {
   return (
     <div style={{position: 'sticky', top: 0, zIndex: 9999}}>
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
-      <Link className="navbar-brand" to="/">Warehouse Manpowere Planner</Link>
       <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span className="navbar-toggler-icon"></span>
       </button>
@@ -52,7 +51,7 @@ function Navbar() {
           : null}
           { token && window.location.pathname !== "/login" && window.location.pathname !== "/signup"? 
           <li className="nav-item">
-            <Link className="nav-link" to="/manpower-planner/select-warehouse">Manpower Calculator</Link>
+            <Link className="nav-link" to="/manpower-planner/select-warehouse">Manpower Planner</Link>
           </li>
           : null}
         </ul>

@@ -122,7 +122,7 @@ const Requirement = () => {
                 <form onSubmit={handlesubmit} className="container">
                     <div className="card">
                         <div className="card-header">
-                            <h2>Enter Requiremnets</h2>
+                            <h2>Enter Requirements</h2>
                         </div>
                         <div className="card-body">
                             <div className="form-group">
@@ -144,7 +144,7 @@ const Requirement = () => {
                             </div>
                             <div className="form-group">
                                 <label>
-                                    Number of Current Employee{" "}
+                                    Number of Current Employees{" "}
                                     <span className="errmsg">*</span>
                                 </label>
                                 <input
@@ -160,7 +160,7 @@ const Requirement = () => {
 
                             <div className="form-group">
                                 <label>
-                                    Total Hiring Budget{" "}
+                                    Total Hiring Budget (&#x20B9;){" "}
                                     <span className="errmsg">*</span>
                                 </label>
                                 <input
@@ -175,7 +175,7 @@ const Requirement = () => {
                             </div>
                             <div className="form-group">
                                 <label>
-                                    Cost Per Employee{" "}
+                                    Monthly Cost Per Employee (&#x20B9;){" "}
                                     <span className="errmsg">*</span>
                                 </label>
                                 <input

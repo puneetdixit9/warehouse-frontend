@@ -137,11 +137,10 @@ const SignupPage = () => {
                             </div>
                         </div>
                         <div className="card-footer">
-                            <button type="submit" className="btn btn-primary">
+                            <button type="submit" className="btn btn-primary mx-1">
                                 Signup
                             </button>{" "}
-                            |
-                            <Link className="btn btn-success" to={"/login"}>
+                            <Link className="btn btn-success mx-1" to={"/login"}>
                                 Login
                             </Link>
                         </div>

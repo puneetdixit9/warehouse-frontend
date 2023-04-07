@@ -21,18 +21,7 @@ function HomePage() {
 
     return (
         <div className="home-page">
-            {user ? <h1>Hi {user.first_name ? user.first_name : user.username}! </h1> : <h1>Warehouse Manpower Plannner</h1>}
-            <p>
-                Warehouse Manpower Plannner is a tool to plan man-power of a
-                warehouse according to productivity of employees (New and Experienced)
-                and Forecasted Demands
-            </p>
-            {user ? 
-            <p>
-                You can calculate the manpower by clicking on Manpower Calculator on the navigation bar
-            </p> : null
-            }
-            
+            <p>Use this tool to estimate manpower requirements and generate manpower deployment plan basis forecasted demand, hiring budget and other details.</p>
         </div>
     );
 }

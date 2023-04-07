@@ -71,7 +71,7 @@ const SelectWarehouse = () => {
                 <form onSubmit={handleNextClick} className="container">
                     <div className="card">
                         <div className="card-header">
-                            <h2>Select Warehouse and dates</h2>
+                            <h2>Select warehouse and planning horizon</h2>
                         </div>
                         <div className="card-body">
                             <div className="form-group">
@@ -99,7 +99,7 @@ const SelectWarehouse = () => {
                             </div>
                             <div className="form-group">
                                 <label htmlFor="start-date-picker">
-                                    Start Date:
+                                    Start Date: <span className="errmsg">*</span>
                                 </label>
                                 <br />
                                 <DatePicker
@@ -112,7 +112,7 @@ const SelectWarehouse = () => {
                             </div>
                             <div className="form-group">
                                 <label htmlFor="start-date-picker">
-                                    End Date:
+                                    End Date: <span className="errmsg">*</span>
                                 </label>
                                 <br />
                                 <DatePicker

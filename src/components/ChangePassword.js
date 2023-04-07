@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import AuthService from "./services/auth.service";
+import AuthService from "../services/auth.service";
 
 const ChangePassword = () => {
 
@@ -41,7 +40,7 @@ const ChangePassword = () => {
         }
 
         if(!isproceed){
-            toast.warning(errormessage)
+            alert(errormessage)
         }
         return isproceed;
     }
@@ -50,17 +49,20 @@ const ChangePassword = () => {
     const handlesubmit = (e) => {
             e.preventDefault();
             if (IsValidate()) {
-                AuthService.change_password(old_password, new_password
-            ).then((resp_code) => {
-                if (resp_code === 200) {
-                    toast.success('Password change successfully.')
-                    navigate('/dashboard');
+                let body = {
+                    old_password,
+                    new_password
+                }
+                AuthService.changePassword({body: JSON.stringify(body)}
+            ).then((response) => {
+                if (response.status === 200) {
+                    alert('Password changed successfully')
+                    navigate('/profile');
                 } else {
-                    toast.error('Please login first.')
-                    navigate('/login');
+                    alert(JSON.stringify(response.data));
                 }
             }).catch((err) => {
-                toast.error('Failed :' + err.message);
+                alert('Failed :' + err.message);
             });
         }
     }
@@ -97,8 +99,8 @@ const ChangePassword = () => {
 
                         </div>
                         <div className="card-footer">
-                            <button type="submit" className="btn btn-primary">Change Password</button> |
-                            <Link to={'/dashboard'} className="btn btn-danger">Close</Link>
+                            <button type="submit" className="btn btn-primary btn-lg mx-1">Change Password</button>
+                            <Link to={'/profile'} className="btn btn-danger btn-lg mx-1">Cancel</Link>
                         </div>
                     </div>
                 </form>

@@ -8,4 +8,5 @@ export const EXPECTED_DEMANDS = "demands";
 export const UPLOAD_DEMAND_FORECAST_FILE = "demand_forecast_file";
 export const CALCULATE_MANPOWER = "calculate";
 export const PROFILE = "profile";
+export const CHANGE_PASSWORD = "change_password";
 

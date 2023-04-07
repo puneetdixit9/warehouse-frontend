@@ -1,4 +1,4 @@
-import { API_BASE_URL, PROFILE} from '../constants.js';
+import { API_BASE_URL, PROFILE, CHANGE_PASSWORD} from '../constants.js';
 
 
 function getHeaders() {
@@ -84,27 +84,23 @@ function refreshAndRetry(func, body, remainingPath){
     
 }
 
-async function change_password(old_password, new_password){
-    let token = localStorage.getItem("token")
-    token = JSON.parse(token)
-    let regobj = { old_password, new_password};
-    const response = await fetch(API_BASE_URL + 'change_password', {
+
+async function changePassword({ body={}, remainingPath="" }) {
+    try {
+      const response = await fetch(API_BASE_URL + CHANGE_PASSWORD, {
         method: "PUT",
-        headers: { 
-            'content-type': 'application/json',
-            'Authorization': 'Bearer ' + token.access_token
-        },
-        body: JSON.stringify(regobj)
-    });
-
-   if (response.status !== 200 && response.status !== 401){
-        let error = await response.text()
-        throw new Error(error);
-    } else {
-        return response.status
+        headers: getHeaders(),
+        body: body,
+      });
+      
+      const status = response.status;
+      const data = await response.json();
+  
+      return handleResponse(changePassword, status, data, body, remainingPath);
+    } catch (error) {
+      throw new Error(`Error changing password: ${error.message}`);
     }
-};
-
+}
 
 function logoutAccessToken() {
     let token = localStorage.getItem("token")
@@ -190,7 +186,7 @@ const AuthService = {
     signup,
     login,
     refresh,
-    change_password,
+    changePassword,
     logout,
     checkAuthfailAndRetry,
     logoutRefreshToken,
