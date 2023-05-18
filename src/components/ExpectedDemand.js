@@ -369,7 +369,7 @@ function ExpectedDemand() {
             >
                 Cancel
             </button>
-            <Modal show={showDialog} onHide={handleClose}>
+            <Modal show={showDialog} onHide={handleClose} style={{zIndex: 100001}}>
                 <Modal.Header closeButton>
                     <Modal.Title>Warning!</Modal.Title>
                 </Modal.Header>
