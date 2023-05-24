@@ -1,4 +1,4 @@
-import { API_BASE_URL, PROFILE, CHANGE_PASSWORD} from '../constants.js';
+import { API_BASE_URL, PROFILE, CHANGE_PASSWORD, SIGNUP, LOGIN, REFRESH, LOGOUT} from '../constants.js';
 
 
 function getHeaders() {
@@ -11,7 +11,7 @@ function getHeaders() {
 
 
 async function signup(signupData){
-    const response = await fetch(API_BASE_URL + 'signup', {
+    const response = await fetch(API_BASE_URL + SIGNUP, {
         method: "POST",
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(signupData)
@@ -24,7 +24,7 @@ async function signup(signupData){
 
 async function login(email, password){
     let regobj = { password, email};
-    const response = await fetch(API_BASE_URL + 'login', {
+    const response = await fetch(API_BASE_URL + LOGIN, {
         method: "POST",
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(regobj)
@@ -40,7 +40,7 @@ async function login(email, password){
 
 async function refresh(){
     let token = JSON.parse(localStorage.getItem("token"))
-    const response = await fetch(API_BASE_URL + 'refresh', {
+    const response = await fetch(API_BASE_URL + REFRESH, {
         method: "GET",
         headers: { 
             'content-type': 'application/json',
@@ -105,7 +105,7 @@ async function changePassword({ body={}, remainingPath="" }) {
 function logoutAccessToken() {
     let token = localStorage.getItem("token")
     token = JSON.parse(token)
-    const response = fetch(API_BASE_URL + 'logout', {
+    const response = fetch(API_BASE_URL + LOGOUT, {
         method: "DELETE",
         headers: { 
             'content-type': 'application/json',
