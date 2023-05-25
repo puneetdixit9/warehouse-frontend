@@ -64,7 +64,7 @@ const SignupPage = () => {
                         alert("Registered successfully.");
                         navigate("/login");
                     } else {
-                        alert(res[1]["msg"]);
+                        alert(res[1]["error"]);
                     }
                 })
                 .catch((err) => {

@@ -3,15 +3,6 @@ import AuthService from "./auth.service";
 const API_URL = "http://127.0.0.1:5000/";
 
 
-// async function checkAuthfailAndRetry(response, func, body={}){
-//     let data = await response.json()
-//     if (response.status === 401 && data.msg === "Token has expired"){
-//         AuthService.refresh()
-//         return func(body)
-//     }
-//     return [response.status,  data]
-// }
-
 
 async function getAddress(){
     let token = localStorage.getItem("token")
