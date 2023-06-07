@@ -1,4 +1,4 @@
-import { API_BASE_URL, WAREHOUSE, BENCHMARK_PRODUCTIVITY, UPLOAD_PRODUCTIVITY_FILE, EXPECTED_DEMANDS, UPLOAD_DEMAND_FORECAST_FILE, CALCULATE_MANPOWER} from '../constants.js';
+import { WAREHOUSE_BASE_URL, WAREHOUSE, BENCHMARK_PRODUCTIVITY, UPLOAD_PRODUCTIVITY_FILE, EXPECTED_DEMANDS, UPLOAD_DEMAND_FORECAST_FILE, CALCULATE_MANPOWER} from '../constants.js';
 import AuthService from "./auth.service";
 
 function getHeaders() {
@@ -11,7 +11,7 @@ function getHeaders() {
 
 async function getWarehouses({ body={}, remainingPath="" }) {
     try {
-      const response = await fetch(API_BASE_URL + WAREHOUSE + remainingPath, {
+      const response = await fetch(WAREHOUSE_BASE_URL + WAREHOUSE + remainingPath, {
         method: "GET",
         headers: getHeaders(),
       });
@@ -28,7 +28,7 @@ async function getWarehouses({ body={}, remainingPath="" }) {
 
 async function getProductivityData({ body={}, remainingPath="" }) {
     try {
-        const response = await fetch(API_BASE_URL + BENCHMARK_PRODUCTIVITY + "/" + remainingPath, {
+        const response = await fetch(WAREHOUSE_BASE_URL + BENCHMARK_PRODUCTIVITY + "/" + remainingPath, {
           method: "GET",
           headers: getHeaders(),
         });
@@ -45,7 +45,7 @@ async function getProductivityData({ body={}, remainingPath="" }) {
 
 async function updateProductivityData({ body={}, remainingPath="" }) {
     try {
-        const response = await fetch(API_BASE_URL + BENCHMARK_PRODUCTIVITY, {
+        const response = await fetch(WAREHOUSE_BASE_URL + BENCHMARK_PRODUCTIVITY, {
           method: "PUT",
           headers: getHeaders(),
           body: body
@@ -64,7 +64,7 @@ async function uploadProductivityFile({ body={}, remainingPath="" }) {
     let headers = getHeaders()
     delete headers["content-type"]
     try {
-        const response = await fetch(API_BASE_URL + UPLOAD_PRODUCTIVITY_FILE + "/" + remainingPath, {
+        const response = await fetch(WAREHOUSE_BASE_URL + UPLOAD_PRODUCTIVITY_FILE + "/" + remainingPath, {
           method: "POST",
           headers: headers,
           body: body
@@ -82,7 +82,7 @@ async function uploadProductivityFile({ body={}, remainingPath="" }) {
 
 async function getExpectedDemandsData({ body={}, remainingPath="" }) {
     try {
-        const response = await fetch(API_BASE_URL + EXPECTED_DEMANDS + "/" + remainingPath, {
+        const response = await fetch(WAREHOUSE_BASE_URL + EXPECTED_DEMANDS + "/" + remainingPath, {
           method: "GET",
           headers: getHeaders(),
         });
@@ -98,7 +98,7 @@ async function getExpectedDemandsData({ body={}, remainingPath="" }) {
 
 async function updateExpectedDemandsData({ body={}, remainingPath="" }) {
     try {
-        const response = await fetch(API_BASE_URL + EXPECTED_DEMANDS, {
+        const response = await fetch(WAREHOUSE_BASE_URL + EXPECTED_DEMANDS, {
           method: "PUT",
           headers: getHeaders(),
           body: body
@@ -117,7 +117,7 @@ async function uploadExpectedDemandsFile({ body={}, remainingPath="" }) {
     let headers = getHeaders()
     delete headers["content-type"]
     try {
-        const response = await fetch(API_BASE_URL + UPLOAD_DEMAND_FORECAST_FILE + "/" + remainingPath, {
+        const response = await fetch(WAREHOUSE_BASE_URL + UPLOAD_DEMAND_FORECAST_FILE + "/" + remainingPath, {
           method: "POST",
           headers: headers,
           body: body
@@ -135,7 +135,7 @@ async function uploadExpectedDemandsFile({ body={}, remainingPath="" }) {
 
 async function catculateManpower({ body={}, remainingPath="" }) {
     try {
-        const response = await fetch(API_BASE_URL + CALCULATE_MANPOWER, {
+        const response = await fetch(WAREHOUSE_BASE_URL + CALCULATE_MANPOWER, {
           method: "POST",
           headers: getHeaders(),
           body: body

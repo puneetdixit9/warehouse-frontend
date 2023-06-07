@@ -1,4 +1,4 @@
-import { API_BASE_URL, PROFILE, CHANGE_PASSWORD, SIGNUP, LOGIN, REFRESH, LOGOUT} from '../constants.js';
+import { AUTH_BASE_URL, PROFILE, CHANGE_PASSWORD, SIGNUP, LOGIN, REFRESH, LOGOUT} from '../constants.js';
 
 
 function getHeaders() {
@@ -11,7 +11,7 @@ function getHeaders() {
 
 
 async function signup(signupData){
-    const response = await fetch(API_BASE_URL + SIGNUP, {
+    const response = await fetch(AUTH_BASE_URL + SIGNUP, {
         method: "POST",
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(signupData)
@@ -24,7 +24,7 @@ async function signup(signupData){
 
 async function login(email, password){
     let regobj = { password, email};
-    const response = await fetch(API_BASE_URL + LOGIN, {
+    const response = await fetch(AUTH_BASE_URL + LOGIN, {
         method: "POST",
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(regobj)
@@ -40,7 +40,7 @@ async function login(email, password){
 
 async function refresh(){
     let token = JSON.parse(localStorage.getItem("token"))
-    const response = await fetch(API_BASE_URL + REFRESH, {
+    const response = await fetch(AUTH_BASE_URL + REFRESH, {
         method: "GET",
         headers: { 
             'content-type': 'application/json',
@@ -87,7 +87,7 @@ function refreshAndRetry(func, body, remainingPath){
 
 async function changePassword({ body={}, remainingPath="" }) {
     try {
-      const response = await fetch(API_BASE_URL + CHANGE_PASSWORD, {
+      const response = await fetch(AUTH_BASE_URL + CHANGE_PASSWORD, {
         method: "PUT",
         headers: getHeaders(),
         body: body,
@@ -105,8 +105,8 @@ async function changePassword({ body={}, remainingPath="" }) {
 function logoutAccessToken() {
     let token = localStorage.getItem("token")
     token = JSON.parse(token)
-    const response = fetch(API_BASE_URL + LOGOUT, {
-        method: "DELETE",
+    const response = fetch(AUTH_BASE_URL + LOGOUT, {
+        method: "GET",
         headers: { 
             'content-type': 'application/json',
             'Authorization': 'Bearer ' + token.access_token
@@ -118,8 +118,8 @@ function logoutAccessToken() {
 function logoutRefreshToken(){
     let token = localStorage.getItem("token")
     token = JSON.parse(token)
-    const response = fetch(API_BASE_URL + 'logout', {
-        method: "DELETE",
+    const response = fetch(AUTH_BASE_URL + 'logout', {
+        method: "GET",
         headers: { 
             'content-type': 'application/json',
             'Authorization': 'Bearer ' + token.refresh_token
@@ -139,7 +139,7 @@ async function logout(){
 
 async function get_profile({ body={}, remainingPath="" }) {
     try {
-      const response = await fetch(API_BASE_URL + PROFILE, {
+      const response = await fetch(AUTH_BASE_URL + PROFILE, {
         method: "GET",
         headers: getHeaders(),
       });
@@ -155,7 +155,7 @@ async function get_profile({ body={}, remainingPath="" }) {
 
 async function update_profile({ body={}, remainingPath="" }) {
     try {
-      const response = await fetch(API_BASE_URL + PROFILE, {
+      const response = await fetch(AUTH_BASE_URL + PROFILE, {
         method: "PUT",
         headers: getHeaders(),
         body: body,

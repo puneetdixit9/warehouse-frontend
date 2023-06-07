@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import AuthService from "../services/auth.service";
 
 const SignupPage = () => {
-    const [username, usernamechange] = useState("");
+    const [user_name, usernamechange] = useState("");
     const [password, passwordchange] = useState("");
     const [confirmPassword, confirmPasswordchange] = useState("");
     const [email, emailchange] = useState("");
@@ -17,9 +17,9 @@ const SignupPage = () => {
     const IsValidate = () => {
         let isproceed = true;
         let errormessage = "Please enter the value in ";
-        if (username === null || username === "") {
+        if (user_name === null || user_name === "") {
             isproceed = false;
-            errormessage += " username";
+            errormessage += " user_name";
         }
         if (password === null || password === "") {
             isproceed = false;
@@ -54,7 +54,7 @@ const SignupPage = () => {
         e.preventDefault();
         if (IsValidate()) {
             let signupData = {
-                username,
+                user_name,
                 email,
                 password,
             };
@@ -89,7 +89,7 @@ const SignupPage = () => {
                                     Username <span className="errmsg">*</span>
                                 </label>
                                 <input
-                                    value={username}
+                                    value={user_name}
                                     onChange={(e) =>
                                         usernamechange(e.target.value)
                                     }
