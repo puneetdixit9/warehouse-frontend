@@ -1,4 +1,7 @@
-import { AUTH_BASE_URL, PROFILE, CHANGE_PASSWORD, SIGNUP, LOGIN, REFRESH, LOGOUT} from '../constants.js';
+import { AUTH_BASE_URL, PROFILE, CHANGE_PASSWORD, SIGNUP, LOGIN, REFRESH, LOGOUT, VERIFY} from '../constants.js';
+import axios from 'axios';
+
+axios.defaults.withCredentials = true
 
 
 function getHeaders() {
@@ -111,6 +114,7 @@ function logoutAccessToken() {
             'content-type': 'application/json',
             'Authorization': 'Bearer ' + token.access_token
         },
+        credentials: 'include'
     });
     return response
 }
@@ -118,12 +122,9 @@ function logoutAccessToken() {
 function logoutRefreshToken(){
     let token = localStorage.getItem("token")
     token = JSON.parse(token)
-    const response = fetch(AUTH_BASE_URL + 'logout', {
+    const response = fetch(AUTH_BASE_URL + LOGOUT, {
         method: "GET",
-        headers: { 
-            'content-type': 'application/json',
-            'Authorization': 'Bearer ' + token.refresh_token
-        },
+        credentials: 'include'
     });
     return response
 }
@@ -137,9 +138,9 @@ async function logout(){
 }
 
 
-async function get_profile({ body={}, remainingPath="" }) {
+async function get_profile2({ body={}, remainingPath="" }) {
     try {
-      const response = await fetch(AUTH_BASE_URL + PROFILE, {
+      const response = await fetch(AUTH_BASE_URL + VERIFY, {
         method: "GET",
         headers: getHeaders(),
       });
@@ -152,6 +153,41 @@ async function get_profile({ body={}, remainingPath="" }) {
       throw new Error(`Error fetching profile: ${error.message}`);
     }
 }
+
+
+// async function get_profile({ body = {}, remainingPath = '' }) {
+//   try {
+//     const response = await axios.get(AUTH_BASE_URL + VERIFY, {
+//       headers: getHeaders(),
+//       withCredentials: true, // Include credentials (cookies) in the request
+//     });
+
+//     const status = response.status;
+//     const data = response.data;
+
+//     return handleResponse(get_profile, status, data, body, remainingPath);
+//   } catch (error) {
+//     throw new Error(`Error fetching profile: ${error.message}`);
+//   }
+// }
+
+
+async function get_profile({ body = {}, remainingPath = '' }) {
+    try {
+      const response = await axios.get(AUTH_BASE_URL + VERIFY, {
+        headers: getHeaders(),
+        withCredentials: true,
+      });
+  
+      const status = response.status;
+      const data = response.data;
+  
+      return handleResponse(get_profile, status, data, body, remainingPath);
+    } catch (error) {
+      throw new Error(`Error fetching profile: ${error.message}`);
+    }
+  }
+
 
 async function update_profile({ body={}, remainingPath="" }) {
     try {

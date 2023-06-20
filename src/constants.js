@@ -9,6 +9,7 @@ export const EXPECTED_DEMANDS = "wmp/demands";
 export const UPLOAD_DEMAND_FORECAST_FILE = "wmp/demand_forecast_file";
 export const CALCULATE_MANPOWER = "wmp/calculate";
 export const PROFILE = "users/profile";
+export const VERIFY = "auth/verify";
 export const CHANGE_PASSWORD = "auth/change_password";
 export const LOGIN = "auth/login";
 export const SIGNUP = "auth/signup";
